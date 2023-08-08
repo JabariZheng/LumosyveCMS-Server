@@ -1,0 +1,33 @@
+# 开发环境配置
+app:
+  prefix: '/admin-api'
+  port: 7001
+# 数据库配置
+db:
+  mysql:
+    host: 'localhost'
+    username: 'root'
+    password: '4zbndsfh'
+    database: 'backend_node'
+    port: 3306
+    charset: 'utf8mb4'
+    logger: 'advanced-console'
+    logging: true
+    multipleStatements: true
+    dropSchema: false
+    synchronize: false
+    supportBigNumbers: true
+    bigNumberStrings: true
+
+# redis 配置
+redis:
+  host: '127.0.0.1'
+  port: 6379
+  db: 0
+  password: '4zbndsfh'
+
+# jwt 配置
+jwt:
+  secretkey: 'backend_node'
+  expiresin: '1h'
+  refreshExpiresIn: '2h'
