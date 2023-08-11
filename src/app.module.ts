@@ -19,6 +19,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import configuration from './config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { AuthModule } from './modules/sys/auth/auth.module';
+import { TenantModule } from './modules/sys/tenant/tenant.module';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
       useFactory: (config: ConfigService) => {
         return {
           type: 'mysql',
+          // logger: false,
           autoLoadEntities: true,
           ...config.get('db.mysql'),
         } as TypeOrmModuleOptions;
@@ -43,15 +46,18 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
     // redisCahce
     CacheModule,
     // 常规模块
+    AuthModule,
     UserModule,
+    TenantModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    // .apply(LoggerMiddleware, LoginMiddleware)
     consumer
-      .apply(LoggerMiddleware, LoginMiddleware)
+      .apply(LoginMiddleware)
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

@@ -8,7 +8,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 @Injectable()
 export class LoginMiddleware implements NestMiddleware {
   use(req: any, res: any, next: (error?: any) => void) {
-    console.log('is login valid');
+    // console.log('is login valid');
     next();
   }
 }

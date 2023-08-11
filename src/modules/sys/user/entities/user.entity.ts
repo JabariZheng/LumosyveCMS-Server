@@ -3,8 +3,10 @@
  * @Date: 2023-08-06 23:49:40
  * @Description: entity.user
  */
-import { BaseEntity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Exclude } from 'class-transformer';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+@Entity('sys_user')
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -12,6 +14,7 @@ export class User extends BaseEntity {
   @Column()
   username: string;
 
+  @Exclude({ toPlainOnly: true }) // 输出屏蔽密码
   @Column()
   password: string;
 

@@ -1,9 +1,24 @@
+/*
+ * @Author: ZhengJie
+ * @Date: 2023-08-07 15:13:08
+ * @Description: auth.service
+ */
 import { Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { LoginDto } from './dto/auth.dto';
+import { ResultData } from 'src/utils/result';
 
 @Injectable()
 export class AuthService {
+  /**
+   * 登录
+   */
+  login(loginParams: LoginDto) {
+    console.log('loginParams', loginParams);
+    return ResultData.ok({});
+  }
+
   create(createAuthDto: CreateAuthDto) {
     return 'This action adds a new auth';
   }

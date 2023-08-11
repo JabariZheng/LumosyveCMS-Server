@@ -3,63 +3,76 @@
  * @Date: 2023-08-06 23:49:40
  * @Description: user.create.dto
  */
-import { IsNumber, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
+  @ApiProperty({ description: '用户名' })
+  @IsNotEmpty({ message: '请检查用户名' })
   username: string;
 
   @IsString()
+  @ApiProperty({ description: '密码' })
+  @IsNotEmpty({ message: '请检查密码' })
   password: string;
 
-  @IsString()
+  @ApiProperty({ description: '昵称', required: false })
   nickname: string;
 
-  @IsString()
+  @ApiProperty({ description: '备注', required: false })
   remark: string;
 
-  @IsNumber()
+  @ApiProperty({ description: '角色', required: false })
+  role_ids: number[];
+
+  @ApiProperty({ description: '部门', required: false })
   dept_id: number;
 
-  @IsString()
+  @ApiProperty({ description: '岗位', required: false })
   post_ids: string;
 
-  @IsString()
+  @ApiProperty({ description: '邮箱', required: false })
   email: string;
 
   @IsString()
+  @ApiProperty({ description: '手机号码' })
+  @IsNotEmpty({ message: '请检查手机号码' })
   mobile: string;
 
   @IsNumber()
+  @ApiProperty({ description: '性别' })
+  @IsNotEmpty({ message: '请检查性别' })
   sex: number;
 
-  @IsString()
+  @ApiProperty({ description: '头像', required: false })
   avatar: string;
 
-  @IsNumber()
+  @ApiProperty({ description: '账号状态', required: false })
   status: number;
 
-  @IsNumber()
+  @ApiProperty({ description: '是否删除', required: false })
   deleted: number;
 
-  @IsNumber()
+  @ApiProperty({ description: '租户', required: false })
   tenant_id: number;
 
-  @IsString()
+  // @IsString()
+  @ApiProperty({ description: '登录IP', required: false })
   login_ip: string;
 
-  @IsString()
+  @ApiProperty({ description: '登录时间', required: false })
   login_date: string;
 
-  @IsString()
+  @ApiProperty({ description: '创建人', required: false })
   creator: string;
 
-  @IsString()
+  @ApiProperty({ description: '创建时间', required: false })
   create_time: string;
 
-  @IsString()
+  @ApiProperty({ description: '更新者', required: false })
   updater: string;
 
-  @IsString()
+  @ApiProperty({ description: '更新时间', required: false })
   update_time: string;
 }

@@ -4,7 +4,8 @@
  * @Description: utils
  */
 
-import moment from 'moment';
+import * as moment from 'moment';
+import SnowflakeID from './snowflake';
 
 export const getControllerName = (__dirname) => {
   return __dirname.split('/modules')[1];
@@ -26,6 +27,7 @@ export const formatDate = (
     return emptyString || '';
   }
   return moment(value).format(fmt);
+  // return value;
 };
 
 /**
@@ -35,3 +37,8 @@ export const formatDate = (
 export const log2term = (...args: any) => {
   console.log(formatDate(+new Date()), args);
 };
+
+const options: any = {
+  WorkerId: process.pid,
+};
+export const snowflakeID = new SnowflakeID(options);

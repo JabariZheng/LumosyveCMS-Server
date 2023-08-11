@@ -1,0 +1,15 @@
+db:
+  mysql:
+    host: 'localhost'
+    username: 'root'
+    password: '4zbndsfh'
+    database: 'backend_node'
+    port: 3306
+    charset: 'utf8mb4'
+    logger: 'advanced-console'
+    logging: true
+    multipleStatements: true
+    dropSchema: false
+    synchronize: false
+    supportBigNumbers: true
+    bigNumberStrings: true
