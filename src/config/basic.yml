@@ -28,7 +28,7 @@ redis:
 
 # jwt 配置
 jwt:
-  secretkey: 'backend_node'
+  secretkey: 'YmFja2VuZF9ub2Rl'
   expiresin: '1h'
   refreshExpiresIn: '2h'
 # swagger 配置
@@ -36,3 +36,7 @@ swagger:
   title: 'Nest-Admin api'
   description: 'Nest-Admin App 接口文档'
   version: '1.0.0'
+
+# 错误码
+errorCode:
+  valid: 400

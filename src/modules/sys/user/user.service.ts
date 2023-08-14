@@ -127,7 +127,7 @@ export class UserService {
   /**
    * 查找一个
    */
-  private async findOne(opt: any): Promise<User> {
+  public async findOne(opt: any): Promise<User> {
     let user = await this.userRepository.findOne({ where: opt });
     console.log('user', user);
     user = plainToInstance(

@@ -4,16 +4,15 @@
  * @Description: app.controller
  */
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
 import { ApiTags } from '@nestjs/swagger';
+import { AllowAnon } from './common/decorators/allow-anon.decorator';
 
 @ApiTags('API前缀')
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
   @Get()
+  @AllowAnon()
   getHello(): string {
-    return this.appService.getHello();
+    return 'Welcome to Nestjs API';
   }
 }

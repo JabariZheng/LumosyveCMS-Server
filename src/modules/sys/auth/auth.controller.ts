@@ -20,6 +20,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/auth.dto';
 import { ApiBody } from '@nestjs/swagger';
 import { ResultData } from 'src/utils/result';
+import { AllowAnon } from 'src/common/decorators/allow-anon.decorator';
 
 @Controller(getControllerName(__dirname))
 @ApiTags('权限管理')
@@ -27,6 +28,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @AllowAnon()
   login(@Body() loginParams: LoginDto) {
     return this.authService.login(loginParams);
   }

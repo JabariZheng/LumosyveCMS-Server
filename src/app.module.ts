@@ -10,8 +10,7 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { LoggerMiddleware } from './middleware/log.middleware';
+// import { LoggerMiddleware } from './middleware/log.middleware';
 import { LoginMiddleware } from './middleware/login.middleware';
 import { UserModule } from './modules/sys/user/user.module';
 import { CacheModule } from './modules/cache/cache.module';
@@ -21,6 +20,8 @@ import configuration from './config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AuthModule } from './modules/sys/auth/auth.module';
 import { TenantModule } from './modules/sys/tenant/tenant.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './common/guards/auth.guard';
 
 @Module({
   imports: [
@@ -51,7 +52,12 @@ import { TenantModule } from './modules/sys/tenant/tenant.module';
     TenantModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

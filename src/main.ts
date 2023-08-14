@@ -23,6 +23,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService<any>);
   const { prefix, port } = configService.get('app');
+
   // 设置api访问前缀
   app.setGlobalPrefix(prefix);
   // 全局Log
