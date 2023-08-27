@@ -11,61 +11,67 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ comment: '用户账号' })
   username: string;
 
   @Exclude({ toPlainOnly: true }) // 输出屏蔽密码
-  @Column()
+  @Column({ comment: '密码' })
   password: string;
 
-  @Column()
+  @Column({ comment: '用户昵称' })
   nickname: string;
 
-  @Column()
+  @Column({ comment: '备注' })
   remark: string;
 
-  @Column()
+  @Column({ comment: '角色' })
+  role_ids: string;
+
+  @Column({ comment: '部门ID' })
   dept_id: number;
 
-  @Column()
+  @Column({ comment: '岗位编号数组' })
   post_ids: string;
 
-  @Column()
+  @Column({ comment: '用户邮箱' })
   email: string;
 
-  @Column()
+  @Column({ comment: '手机号码' })
   mobile: string;
 
-  @Column()
+  @Column({ comment: '用户性别' })
   sex: number;
 
-  @Column()
+  @Column({ comment: '头像地址' })
   avatar: string;
 
-  @Column()
+  @Column({ comment: '默认首页' })
+  home_url: string;
+
+  @Column({ comment: '帐号状态（0正常 1停用）' })
   status: number;
 
-  @Column()
+  @Column({ comment: '是否删除' })
   deleted: number;
 
-  @Column()
+  @Column({ comment: '租户编号' })
   tenant_id: number;
 
-  @Column()
+  @Column({ comment: '最后登录IP' })
   login_ip: string;
 
-  @Column()
+  @Column({ comment: '最后登录时间' })
   login_date: string;
 
-  @Column()
+  @Column({ comment: '创建者' })
   creator: string;
 
-  @Column()
+  @Column({ comment: '创建时间' })
   create_time: string;
 
-  @Column()
+  @Column({ comment: '更新者' })
   updater: string;
 
-  @Column()
+  @Column({ comment: '更新时间' })
   update_time: string;
 }

@@ -11,6 +11,7 @@ import {
   Patch,
   Param,
   Delete,
+  Headers,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
@@ -34,8 +35,8 @@ export class AuthController {
   }
 
   @Get('info')
-  getInfo() {
-    return 'auth get info';
+  getInfo(@Headers() headers: Record<string, string>) {
+    return this.authService.getInfo(headers['authorization']);
   }
 
   // @Post()
