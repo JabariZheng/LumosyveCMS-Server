@@ -14,7 +14,7 @@ import { log2term } from 'src/utils';
 export class CacheService {
   constructor(@Inject('REDIS_CLIENT') private redisClient: RedisClientType) {}
 
-  async get(key: string) {
+  async get(key: string): Promise<any> {
     let value = await this.redisClient.get(key);
     try {
       value = JSON.parse(value);
