@@ -29,7 +29,8 @@ redis:
 # jwt 配置
 jwt:
   secretkey: 'YmFja2VuZF9ub2Rl'
-  expiresin: '1h'
+  #expiresin: '1h'
+  expiresin: '5s'
   refreshExpiresIn: '2h'
 # swagger 配置
 swagger:
