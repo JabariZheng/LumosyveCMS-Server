@@ -4,7 +4,7 @@
  * @Description: dto
  */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { QueryPageDto } from 'src/common/dto/common.dto';
 
 export class GetPageDto extends QueryPageDto {
@@ -16,9 +16,9 @@ export class GetPageDto extends QueryPageDto {
   status: number;
 }
 
-export class GetInfoDot {
+export class ActionByIdDot {
   @IsString()
   @ApiProperty({ description: 'id' })
   @IsNotEmpty({ message: '请检查Id' })
-  id: number;
+  id: string;
 }

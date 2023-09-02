@@ -12,12 +12,15 @@ import { Dict } from './entities/dict.entity';
 import { FindManyOptions, Repository } from 'typeorm';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ResultData } from 'src/utils/result';
+import { ConfigService } from '@nestjs/config';
+import { formatDate, snowflakeID } from 'src/utils';
 
 @Injectable()
 export class DictService {
   constructor(
     @InjectRepository(Dict)
     private readonly dictRepository: Repository<Dict>,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -30,6 +33,7 @@ export class DictService {
       pageSize: dto.pageSize ? +dto.pageSize : 15,
     };
     const where = {
+      deleted: 0,
       status: params.status || 0,
       name: params.name,
       type: params.type,
@@ -53,7 +57,7 @@ export class DictService {
    */
   public async getList(): Promise<ResultData> {
     const result: [Dict[], number] = await this.queryCount({
-      where: { status: 0 },
+      where: { status: 0, deleted: 0 },
     });
     return ResultData.ok({
       list: instanceToPlain(result[0]),
@@ -69,8 +73,46 @@ export class DictService {
     return ResultData.ok(result ? instanceToPlain(result) : {});
   }
 
-  create(createDictDto: CreateDictDto) {
-    return 'This action adds a new dict';
+  /**
+   * 删除
+   */
+  public async remove(id: number) {
+    if (!id) {
+      ResultData.fail(this.configService.get('errorCode.valid'), '请检查id');
+      return;
+    }
+    let result = await this.findOne({ id: +id });
+    result = instanceToPlain(result) as Dict;
+    result.deleted = 1;
+    result.deleted_time = formatDate(+new Date());
+    await this.dictRepository.save(result);
+    return ResultData.ok(result, '操作成功');
+  }
+
+  /**
+   * 新增
+   */
+  public async create(createDictDto: CreateDictDto) {
+    const newData: Dict = {
+      status: 0,
+      ...createDictDto,
+      id: snowflakeID.NextId() as number,
+      deleted: 0,
+      creator: 'admin',
+      create_time: formatDate(+new Date()),
+      update_time: formatDate(+new Date()),
+      updater: 'admin',
+      deleted_time: undefined,
+    };
+    await this.dictRepository.save(newData);
+    return ResultData.ok(newData, '操作成功');
+  }
+
+  /**
+   * 更新
+   */
+  update(updateDictDto: UpdateDictDto) {
+    return `This action updates a #${updateDictDto.id} dict`;
   }
 
   findAll() {
@@ -99,13 +141,5 @@ export class DictService {
       enableImplicitConversion: true,
     });
     return [data, result[1]];
-  }
-
-  update(id: number, updateDictDto: UpdateDictDto) {
-    return `This action updates a #${id} dict`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} dict`;
   }
 }
