@@ -16,6 +16,8 @@ import { CacheService } from 'src/modules/cache/cache.service';
 import { AuthService } from 'src/modules/sys/auth/auth.service';
 import { ALLOW_ANON } from '../decorators/allow-anon.decorator';
 import { ResultData } from 'src/utils/result';
+import { ConfigService } from '@nestjs/config';
+import { isBoolean } from 'class-validator';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -25,9 +27,16 @@ export class JwtAuthGuard implements CanActivate {
     private readonly authService: AuthService,
     @Inject(CacheService)
     private readonly cacheService: CacheService,
+    private readonly configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const permission = this.configService.get('app.permission');
+    if (!permission) {
+      // 不鉴权
+      return true;
+    }
+    console.log('permission', permission, isBoolean(permission));
     const allowAnon = this.reflector.getAllAndOverride<boolean>(ALLOW_ANON, [
       context.getHandler(),
       context.getClass(),

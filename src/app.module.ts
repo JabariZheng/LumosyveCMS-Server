@@ -23,6 +23,7 @@ import { TenantModule } from './modules/sys/tenant/tenant.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/auth.guard';
 import { ViewsModule } from './modules/sys/views/views.module';
+import { DictModule } from './modules/sys/dict/dict.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { ViewsModule } from './modules/sys/views/views.module';
     UserModule,
     TenantModule,
     ViewsModule,
+    DictModule,
   ],
   controllers: [AppController],
   providers: [
