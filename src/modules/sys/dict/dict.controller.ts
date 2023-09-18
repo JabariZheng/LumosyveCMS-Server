@@ -12,6 +12,7 @@ import {
   Param,
   Delete,
   Query,
+  Headers,
 } from '@nestjs/common';
 import { DictService } from './dict.service';
 import { ActionByIdDot, GetPageDto } from './dto/index.dto';
@@ -26,19 +27,22 @@ export class DictController {
   constructor(private readonly dictService: DictService) {}
 
   @Post('add')
-  add(@Body() createDictDto: CreateDictDto) {
-    return this.dictService.create(createDictDto);
+  @ApiOperation({ summary: '新增' })
+  add(@Body() createDictDto: CreateDictDto, @Headers() headers: any) {
+    return this.dictService.create(createDictDto, headers.authorization);
   }
 
   @Delete('delete')
-  remove(@Body() query: ActionByIdDot) {
+  @ApiOperation({ summary: '删除' })
+  remove(@Query() query: ActionByIdDot) {
     console.log('query', query, query.id);
     return this.dictService.remove(+query.id);
   }
 
   @Patch('update')
-  update(@Body() updateDictDto: UpdateDictDto) {
-    return this.dictService.update(updateDictDto);
+  @ApiOperation({ summary: '更新' })
+  update(@Body() updateDictDto: UpdateDictDto, @Headers() headers: any) {
+    return this.dictService.update(updateDictDto, headers.authorization);
   }
 
   @Get('page')

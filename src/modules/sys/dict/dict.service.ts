@@ -14,6 +14,8 @@ import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ResultData } from 'src/utils/result';
 import { ConfigService } from '@nestjs/config';
 import { formatDate, snowflakeID } from 'src/utils';
+import { AuthService } from '../auth/auth.service';
+import { CacheService } from 'src/modules/cache/cache.service';
 
 @Injectable()
 export class DictService {
@@ -21,6 +23,8 @@ export class DictService {
     @InjectRepository(Dict)
     private readonly dictRepository: Repository<Dict>,
     private readonly configService: ConfigService,
+    private readonly authService: AuthService,
+    private readonly cacheService: CacheService,
   ) {}
 
   /**
@@ -33,11 +37,12 @@ export class DictService {
       pageSize: dto.pageSize ? +dto.pageSize : 15,
     };
     const where = {
-      deleted: 0,
-      status: params.status || 0,
+      deleted: +params.status === 2 ? 1 : 0,
+      status: +params.status === 2 ? undefined : params.status,
       name: params.name,
       type: params.type,
     };
+    console.log('where', where);
     const result: [Dict[], number] = await this.queryCount({
       where,
       order: { update_time: 'DESC' },
@@ -78,8 +83,10 @@ export class DictService {
    */
   public async remove(id: number) {
     if (!id) {
-      ResultData.fail(this.configService.get('errorCode.valid'), '请检查id');
-      return;
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        '请检查id',
+      );
     }
     let result = await this.findOne({ id: +id });
     result = instanceToPlain(result) as Dict;
@@ -92,16 +99,26 @@ export class DictService {
   /**
    * 新增
    */
-  public async create(createDictDto: CreateDictDto) {
+  public async create(createDictDto: CreateDictDto, authorization: string) {
+    const result = await this.findOne({ name: createDictDto.name });
+    if (Object.keys(instanceToPlain(result)).length > 0) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `已存在${createDictDto.name}`,
+      );
+    }
+
+    const auUserId = this.authService.validToken(authorization);
+    const currentUser = await this.cacheService.get(auUserId);
     const newData: Dict = {
       status: 0,
       ...createDictDto,
       id: snowflakeID.NextId() as number,
       deleted: 0,
-      creator: 'admin',
+      creator: JSON.parse(currentUser).username,
       create_time: formatDate(+new Date()),
       update_time: formatDate(+new Date()),
-      updater: 'admin',
+      updater: JSON.parse(currentUser).username,
       deleted_time: undefined,
     };
     await this.dictRepository.save(newData);
@@ -111,8 +128,31 @@ export class DictService {
   /**
    * 更新
    */
-  update(updateDictDto: UpdateDictDto) {
-    return `This action updates a #${updateDictDto.id} dict`;
+  public async update(updateDictDto: UpdateDictDto, authorization: string) {
+    if (!updateDictDto.id) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        '请检查id',
+      );
+    }
+    const result = await this.findOne({ id: +updateDictDto.id });
+    if (!result) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `未查询到${updateDictDto.id}，请检查id`,
+      );
+    }
+    const auUserId = this.authService.validToken(authorization);
+    const currentUser = await this.cacheService.get(auUserId);
+    const newData = {
+      ...instanceToPlain(result),
+      ...updateDictDto,
+      id: +updateDictDto.id,
+      update_time: formatDate(+new Date()),
+      updater: JSON.parse(currentUser).username,
+    };
+    await this.dictRepository.save(newData);
+    return ResultData.ok(newData, '操作成功');
   }
 
   findAll() {

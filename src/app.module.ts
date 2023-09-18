@@ -24,6 +24,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/auth.guard';
 import { ViewsModule } from './modules/sys/views/views.module';
 import { DictModule } from './modules/sys/dict/dict.module';
+import { DictDataModule } from './modules/sys/dict-data/dict-data.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { DictModule } from './modules/sys/dict/dict.module';
     TenantModule,
     ViewsModule,
     DictModule,
+    DictDataModule,
   ],
   controllers: [AppController],
   providers: [

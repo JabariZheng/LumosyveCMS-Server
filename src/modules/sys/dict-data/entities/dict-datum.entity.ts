@@ -1,23 +1,35 @@
 /*
  * @Author: ZhengJie
- * @Date: 2023-09-02 18:19:30
- * @Description: entity.dict
+ * @Date: 2023-09-17 23:34:13
+ * @Description: entity.dictData
  */
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity('sys_dict_type')
-export class Dict {
+@Entity('sys_dict_data')
+export class DictDatum {
   @PrimaryColumn()
   id: number;
 
-  @Column({ comment: '字典名称' })
-  name: string;
+  @Column({ comment: '字典排序' })
+  sort: number;
+
+  @Column({ comment: '字典标签' })
+  label: string;
+
+  @Column({ comment: '字典键值' })
+  value: string;
 
   @Column({ comment: '字典类型' })
-  type: string;
+  dict_type: string;
 
   @Column({ comment: '状态（0正常 1停用）' })
   status: number;
+
+  @Column({ comment: '颜色类型' })
+  color_type: string;
+
+  @Column({ comment: 'css 样式' })
+  css_class: string;
 
   @Column({ comment: '备注' })
   remark: string;
@@ -36,7 +48,4 @@ export class Dict {
 
   @Column({ comment: '是否删除' })
   deleted: number;
-
-  @Column({ comment: '删除时间' })
-  deleted_time: string;
 }
