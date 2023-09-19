@@ -37,3 +37,10 @@ export class GetUserPageDto {
   @ApiProperty({ description: '账号状态', required: false })
   status: number;
 }
+
+export class ActionByIdDot {
+  @IsString()
+  @ApiProperty({ description: 'id' })
+  @IsNotEmpty({ message: '请检查Id' })
+  id: string;
+}

@@ -24,7 +24,7 @@ export class CreateUserDto {
   remark: string;
 
   @ApiProperty({ description: '角色', required: false })
-  role_ids: number[];
+  role_ids: string;
 
   @ApiProperty({ description: '部门', required: false })
   dept_id: number;
@@ -48,31 +48,13 @@ export class CreateUserDto {
   @ApiProperty({ description: '头像', required: false })
   avatar: string;
 
+  @IsString()
+  @ApiProperty({ description: '默认首页', required: false })
+  home_url: string;
+
   @ApiProperty({ description: '账号状态', required: false })
   status: number;
 
-  @ApiProperty({ description: '是否删除', required: false })
-  deleted: number;
-
   @ApiProperty({ description: '租户', required: false })
   tenant_id: number;
-
-  // @IsString()
-  @ApiProperty({ description: '登录IP', required: false })
-  login_ip: string;
-
-  @ApiProperty({ description: '登录时间', required: false })
-  login_date: string;
-
-  @ApiProperty({ description: '创建人', required: false })
-  creator: string;
-
-  @ApiProperty({ description: '创建时间', required: false })
-  create_time: string;
-
-  @ApiProperty({ description: '更新者', required: false })
-  updater: string;
-
-  @ApiProperty({ description: '更新时间', required: false })
-  update_time: string;
 }

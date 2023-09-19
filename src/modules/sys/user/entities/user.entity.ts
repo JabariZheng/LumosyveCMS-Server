@@ -4,11 +4,11 @@
  * @Description: entity.user
  */
 import { Exclude } from 'class-transformer';
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('sys_user')
-export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
+export class User {
+  @PrimaryColumn()
   id: number;
 
   @Column({ comment: '用户账号' })
@@ -51,17 +51,14 @@ export class User extends BaseEntity {
   @Column({ comment: '帐号状态（0正常 1停用）' })
   status: number;
 
-  @Column({ comment: '是否删除' })
-  deleted: number;
-
   @Column({ comment: '租户编号' })
   tenant_id: number;
 
   @Column({ comment: '最后登录IP' })
-  login_ip: string;
+  login_ip: string | undefined;
 
   @Column({ comment: '最后登录时间' })
-  login_date: string;
+  login_date: string | undefined;
 
   @Column({ comment: '创建者' })
   creator: string;
@@ -74,4 +71,10 @@ export class User extends BaseEntity {
 
   @Column({ comment: '更新时间' })
   update_time: string;
+
+  @Column({ comment: '是否删除' })
+  deleted: number;
+
+  @Column({ comment: '删除时间' })
+  deleted_time: string | undefined;
 }
