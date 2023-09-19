@@ -11,21 +11,22 @@ import { ResultData } from 'src/utils/result';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CreateTokenDto } from 'src/common/dto/common.dto';
-import { UserService } from '../user/user.service';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { instanceToPlain } from 'class-transformer';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tenant } from '../tenant/entities/tenant.entity';
 import { Repository } from 'typeorm';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Tenant)
     private readonly tenantRepository: Repository<Tenant>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly userService: UserService,
     private readonly cacheService: CacheService,
   ) {}
   /**
@@ -41,8 +42,8 @@ export class AuthService {
         `租户${loginParams.tenant}不存在`,
       );
     }
-    const getUser = await this.userService.findOne({
-      username: loginParams.username,
+    const getUser = await this.userRepository.findOne({
+      where: { username: loginParams.username },
     });
     if (Object.keys(instanceToPlain(getUser || {})).length === 0) {
       return ResultData.fail(
@@ -121,8 +122,8 @@ export class AuthService {
     let cacheData = await this.cacheService.get(id + '');
     // jwt验证已经登录，但是redis里没有了用户信息记录，则重新查询之后存起来
     if (!cacheData) {
-      const getUser = await this.userService.findOne({
-        id: id,
+      const getUser = await this.userRepository.findOne({
+        where: { id: +id },
       });
       cacheData = JSON.stringify(instanceToPlain(getUser));
       await this.cacheService.set(id + '', cacheData);
