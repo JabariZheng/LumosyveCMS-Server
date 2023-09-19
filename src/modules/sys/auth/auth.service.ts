@@ -12,25 +12,28 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CreateTokenDto } from 'src/common/dto/common.dto';
 import { UserService } from '../user/user.service';
-import { TenantService } from '../tenant/tenant.service';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { instanceToPlain } from 'class-transformer';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Tenant } from '../tenant/entities/tenant.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(Tenant)
+    private readonly tenantRepository: Repository<Tenant>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
-    private readonly tenantService: TenantService,
     private readonly cacheService: CacheService,
   ) {}
   /**
    * 登录
    */
   public async login(loginParams: LoginDto) {
-    const getTenant = await this.tenantService.findOne({
-      name: loginParams.tenant,
+    const getTenant = await this.tenantRepository.findOne({
+      where: { name: loginParams.tenant },
     });
     if (Object.keys(getTenant || {}).length === 0) {
       return ResultData.fail(
