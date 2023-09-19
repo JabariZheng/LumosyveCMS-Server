@@ -42,7 +42,6 @@ export class DictService {
       name: params.name,
       type: params.type,
     };
-    console.log('where', where);
     const result: [Dict[], number] = await this.queryCount({
       where,
       order: { update_time: 'DESC' },
@@ -104,7 +103,10 @@ export class DictService {
     authorization: string,
   ): Promise<ResultData> {
     const result = await this.findOne({ name: createDictDto.name });
-    if (Object.keys(instanceToPlain(result)).length > 0) {
+    if (
+      Object.keys(instanceToPlain(result)).length > 0 &&
+      instanceToPlain(result).deleted === 0
+    ) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
         `已存在${createDictDto.name}`,
