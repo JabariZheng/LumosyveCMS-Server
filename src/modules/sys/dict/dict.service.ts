@@ -99,7 +99,10 @@ export class DictService {
   /**
    * 新增
    */
-  public async create(createDictDto: CreateDictDto, authorization: string) {
+  public async create(
+    createDictDto: CreateDictDto,
+    authorization: string,
+  ): Promise<ResultData> {
     const result = await this.findOne({ name: createDictDto.name });
     if (Object.keys(instanceToPlain(result)).length > 0) {
       return ResultData.fail(
