@@ -33,7 +33,7 @@ export class CreateTenantDto {
   package_id: number;
 
   @ApiProperty({ description: '过期时间' })
-  expire_time: number;
+  expire_time: string;
 
   @ApiProperty({ description: '账号数量' })
   account_count: number;
@@ -42,16 +42,19 @@ export class CreateTenantDto {
   creator: string;
 
   @ApiProperty({ description: '创建时间' })
-  create_time: number;
+  create_time: string;
 
   @ApiProperty({ description: '更新者' })
   updater: string;
 
   @ApiProperty({ description: '更新时间' })
-  update_time: number;
+  update_time: string;
 
   // @IsNumber()
   @ApiProperty({ description: '是否删除' })
   // @IsNotEmpty({ message: '请检查租户是否删除' })
   deleted: number;
+
+  @ApiProperty({ description: '删除时间' })
+  deleted_time: string;
 }

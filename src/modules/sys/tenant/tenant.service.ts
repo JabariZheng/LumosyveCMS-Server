@@ -13,6 +13,9 @@ import { TenantPageDto } from './dto/common-tenant.dto';
 import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ConfigService } from '@nestjs/config';
+import { AuthService } from '../auth/auth.service';
+import { CacheService } from 'src/modules/cache/cache.service';
+import { formatDate, snowflakeID } from 'src/utils';
 
 @Injectable()
 export class TenantService {
@@ -20,6 +23,8 @@ export class TenantService {
     @InjectRepository(Tenant)
     private readonly tenantRepository: Repository<Tenant>,
     private readonly configService: ConfigService,
+    private readonly authService: AuthService,
+    private readonly cacheService: CacheService,
   ) {}
 
   /**
@@ -32,9 +37,13 @@ export class TenantService {
       pageSize: dto.pageSize ? +dto.pageSize : 1,
     };
     const where = {
-      status: params.status || 0,
+      deleted: +params.status === 2 ? 1 : 0,
+      status: +params.status === 2 ? undefined : params.status,
       username: params.name,
+      contact_name: params.contact_name,
+      contact_mobile: params.contact_mobile,
     };
+    console.log('where', where);
     const result = await this.findByOptions({
       where,
       skip: (params.pageNo - 1) * params.pageSize,
@@ -52,7 +61,9 @@ export class TenantService {
    * 租户列表
    */
   public async getTanantList() {
-    const result = await this.findByOptions({ where: { status: 0 } });
+    const result = await this.findByOptions({
+      where: { status: 0, deleted: 0 },
+    });
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
@@ -70,25 +81,55 @@ export class TenantService {
   /**
    * 新增租户
    */
-  public async create(dto: CreateTenantDto): Promise<ResultData> {
-    const errorValidCode = this.configService.get<string>('errorCode.valid');
-    const getFind = await this.findOne({ name: dto.name });
-    if (Object.keys(getFind || {}).length > 0) {
-      return ResultData.fail(+errorValidCode, `已存在租户${dto.name}`);
+  public async create(
+    dto: CreateTenantDto,
+    authorization: string,
+  ): Promise<ResultData> {
+    const result = await this.findOne({ name: dto.name });
+    if (Object.keys(instanceToPlain(result)).length > 0) {
+      if (instanceToPlain(result).deleted === 0) {
+        return ResultData.fail(
+          this.configService.get('errorCode.valid'),
+          `已存在租户${dto.name}`,
+        );
+      }
     }
+
+    const auUserId = this.authService.validToken(authorization);
+    const currentUser = await this.cacheService.get(auUserId);
+
     // 拼装数据
-    const newTenant: CreateTenantDto = {
+    const newData: Tenant = {
       ...dto,
-      // TODO 从登录缓存里取
-      creator: 'jabari',
+      id: snowflakeID.NextId() as number,
       deleted: 0,
+      creator: JSON.parse(currentUser).username,
+      create_time: formatDate(+new Date()),
+      update_time: formatDate(+new Date()),
+      updater: JSON.parse(currentUser).username,
+      deleted_time: undefined,
     };
-    return ResultData.ok({ data: dto });
+    await this.tenantRepository.save(newData);
+    return ResultData.ok(newData, '操作成功');
   }
 
   /**
    * 删除租户
    */
+  public async remove(id: number) {
+    if (!id) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        '请检查id',
+      );
+    }
+    let result = await this.findOne({ id: +id });
+    result = instanceToPlain(result) as Tenant;
+    result.deleted = 1;
+    result.deleted_time = formatDate(+new Date());
+    await this.tenantRepository.save(result);
+    return ResultData.ok(result, '操作成功');
+  }
 
   /**
    * 根据条件查询list
@@ -112,21 +153,46 @@ export class TenantService {
    */
   public async findOne(opt: any): Promise<Tenant> {
     let result = await this.tenantRepository.findOne({ where: opt });
-    result = plainToInstance(Tenant, result, {
-      enableImplicitConversion: true,
-    });
+    result = plainToInstance(
+      Tenant,
+      { ...result },
+      {
+        enableImplicitConversion: true,
+      },
+    );
     return result;
   }
 
   findAll() {
     return `This action returns all tenant`;
   }
-
-  update(id: number, updateTenantDto: UpdateTenantDto) {
-    return `This action updates a #${id} tenant`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} tenant`;
+  /**
+   * 更新
+   */
+  public async update(updateTenantDto: UpdateTenantDto, authorization: string) {
+    if (!updateTenantDto.id) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        '请检查id',
+      );
+    }
+    const result = await this.findOne({ id: +updateTenantDto.id });
+    if (!result) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `未查询到${updateTenantDto.id}，请检查id`,
+      );
+    }
+    const auUserId = this.authService.validToken(authorization);
+    const currentUser = await this.cacheService.get(auUserId);
+    const newData = {
+      ...instanceToPlain(result),
+      ...updateTenantDto,
+      id: +updateTenantDto.id,
+      update_time: formatDate(+new Date()),
+      updater: JSON.parse(currentUser).username,
+    };
+    await this.tenantRepository.save(newData);
+    return ResultData.ok(newData, '操作成功');
   }
 }

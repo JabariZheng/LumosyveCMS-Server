@@ -8,10 +8,11 @@ import { TenantService } from './tenant.service';
 import { TenantController } from './tenant.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tenant } from './entities/tenant.entity';
+import { AuthModule } from '../auth/auth.module';
 
 const EntityFeatures = TypeOrmModule.forFeature([Tenant]);
 @Module({
-  imports: [EntityFeatures],
+  imports: [EntityFeatures, AuthModule],
   controllers: [TenantController],
   providers: [TenantService],
   exports: [TenantService],

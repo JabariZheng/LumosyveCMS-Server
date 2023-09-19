@@ -42,7 +42,7 @@ export class Tenant {
 
   @Column({ comment: '过期时间' })
   @ApiProperty({ description: '过期时间' })
-  expire_time: number;
+  expire_time: string;
 
   @Column({ comment: '账号数量' })
   @ApiProperty({ description: '账号数量' })
@@ -54,7 +54,7 @@ export class Tenant {
 
   @Column({ comment: '创建时间' })
   @ApiProperty({ description: '创建时间' })
-  create_time: number;
+  create_time: string;
 
   @Column({ comment: '更新者' })
   @ApiProperty({ description: '更新者' })
@@ -62,9 +62,13 @@ export class Tenant {
 
   @Column({ comment: '更新时间' })
   @ApiProperty({ description: '更新时间' })
-  update_time: number;
+  update_time: string;
 
   @Column({ comment: '是否删除' })
   @ApiProperty({ description: '是否删除' })
   deleted: number;
+
+  @Column({ comment: '删除时间' })
+  @ApiProperty({ description: '删除时间' })
+  deleted_time: string;
 }
