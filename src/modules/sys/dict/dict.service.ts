@@ -16,12 +16,15 @@ import { ConfigService } from '@nestjs/config';
 import { formatDate, snowflakeID } from 'src/utils';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
+import { DictDatum } from '../dict-data/entities/dict-datum.entity';
 
 @Injectable()
 export class DictService {
   constructor(
     @InjectRepository(Dict)
     private readonly dictRepository: Repository<Dict>,
+    @InjectRepository(DictDatum)
+    private readonly dictDataRepository: Repository<DictDatum>,
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
     private readonly cacheService: CacheService,
@@ -87,11 +90,23 @@ export class DictService {
         '请检查id',
       );
     }
+    // 字典类型删除
     let result = await this.findOne({ id: +id });
     result = instanceToPlain(result) as Dict;
-    result.deleted = 1;
+    result.deleted = '1';
     result.deleted_time = formatDate(+new Date());
+    // 字典数据删除
+    let dictDataResult = await this.dictDataRepository.find({
+      where: { dict_type: result.type },
+    });
+    dictDataResult = instanceToPlain(dictDataResult) as DictDatum[];
+    dictDataResult = dictDataResult.map((item: DictDatum) => {
+      item.deleted = '1';
+      item.deleted_time = formatDate(+new Date());
+      return item;
+    });
     await this.dictRepository.save(result);
+    await this.dictDataRepository.save(dictDataResult);
     return ResultData.ok(result, '操作成功');
   }
 
@@ -116,10 +131,10 @@ export class DictService {
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     const newData: Dict = {
-      status: 0,
+      status: '0',
       ...createDictDto,
       id: snowflakeID.NextId() as number,
-      deleted: 0,
+      deleted: '0',
       creator: JSON.parse(currentUser).username,
       create_time: formatDate(+new Date()),
       update_time: formatDate(+new Date()),

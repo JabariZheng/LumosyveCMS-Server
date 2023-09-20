@@ -12,8 +12,8 @@ export class GetPageDto extends QueryPageDto {
   name: string;
   @ApiProperty({ description: '字典类型', type: String, required: false })
   type: string;
-  @ApiProperty({ description: '状态', type: Number, required: false })
-  status: number;
+  @ApiProperty({ description: '状态', type: String, required: false })
+  status: string;
 }
 
 export class ActionByIdDot {

@@ -27,7 +27,7 @@ export class CreateDictDatumDto {
     type: 'number',
     required: true,
   })
-  status: number; /* 状态（0正常 1停用） */
+  status: string; /* 状态（0正常 1停用） */
 
   @ApiProperty({ description: '字典排序' })
   sort: number;

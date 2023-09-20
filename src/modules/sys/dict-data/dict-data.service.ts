@@ -56,15 +56,17 @@ export class DictDataService {
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     const newData: DictDatum = {
-      status: 0,
+      status: '0',
       ...createDictDatumDto,
       id: snowflakeID.NextId() as number,
-      deleted: 0,
+      deleted: '0',
       creator: JSON.parse(currentUser).username,
       create_time: formatDate(+new Date()),
       update_time: formatDate(+new Date()),
       updater: JSON.parse(currentUser).username,
+      deleted_time: undefined,
     };
+    console.log('newData', newData);
     await this.dictDataRepository.save(newData);
     return ResultData.ok(newData, '操作成功');
   }
@@ -81,7 +83,8 @@ export class DictDataService {
     }
     let result = await this.findOne({ id: +id });
     result = instanceToPlain(result) as DictDatum;
-    result.deleted = 1;
+    result.deleted = '1';
+    result.deleted_time = formatDate(+new Date());
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     result.updater = JSON.parse(currentUser).username;
@@ -129,18 +132,18 @@ export class DictDataService {
       pageSize: dto.pageSize ? +dto.pageSize : 15,
     };
     const where = {
-      deleted: +params.status === 2 ? 1 : 0,
-      status: +params.status === 2 ? undefined : params.status,
+      deleted: params.status === '2' ? '1' : '0',
+      status: params.status === '2' ? undefined : params.status,
       name: params.name,
-      type: params.type,
+      dict_type: params.type,
     };
-    console.log('where', where);
     const result: [DictDatum[], number] = await this.queryCount({
       where,
       order: { update_time: 'DESC' },
       skip: (params.pageNo - 1) * params.pageSize,
       take: params.pageSize,
     });
+    console.log('instanceToPlain(result[0])', instanceToPlain(result[0]));
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],

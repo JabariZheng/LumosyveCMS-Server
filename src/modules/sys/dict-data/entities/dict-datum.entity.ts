@@ -23,7 +23,7 @@ export class DictDatum {
   dict_type: string;
 
   @Column({ comment: '状态（0正常 1停用）' })
-  status: number;
+  status: string;
 
   @Column({ comment: '颜色类型' })
   color_type: string;
@@ -47,5 +47,8 @@ export class DictDatum {
   update_time: string;
 
   @Column({ comment: '是否删除' })
-  deleted: number;
+  deleted: string;
+
+  @Column({ comment: '删除时间' })
+  deleted_time: string;
 }
