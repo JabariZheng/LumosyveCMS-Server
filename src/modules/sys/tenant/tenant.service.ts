@@ -37,13 +37,12 @@ export class TenantService {
       pageSize: dto.pageSize ? +dto.pageSize : 1,
     };
     const where = {
-      deleted: +params.status === 2 ? 1 : 0,
-      status: +params.status === 2 ? undefined : params.status,
+      deleted: params.status === '2' ? '1' : '0',
+      status: params.status === '2' ? undefined : params.status,
       username: params.name,
       contact_name: params.contact_name,
       contact_mobile: params.contact_mobile,
     };
-    console.log('where', where);
     const result = await this.findByOptions({
       where,
       skip: (params.pageNo - 1) * params.pageSize,
@@ -87,7 +86,7 @@ export class TenantService {
   ): Promise<ResultData> {
     const result = await this.findOne({ name: dto.name });
     if (Object.keys(instanceToPlain(result)).length > 0) {
-      if (instanceToPlain(result).deleted === 0) {
+      if (instanceToPlain(result).deleted === '0') {
         return ResultData.fail(
           this.configService.get('errorCode.valid'),
           `已存在租户${dto.name}`,
@@ -102,7 +101,7 @@ export class TenantService {
     const newData: Tenant = {
       ...dto,
       id: snowflakeID.NextId() as number,
-      deleted: 0,
+      deleted: '0',
       creator: JSON.parse(currentUser).username,
       create_time: formatDate(+new Date()),
       update_time: formatDate(+new Date()),
@@ -125,7 +124,7 @@ export class TenantService {
     }
     let result = await this.findOne({ id: +id });
     result = instanceToPlain(result) as Tenant;
-    result.deleted = 1;
+    result.deleted = '1';
     result.deleted_time = formatDate(+new Date());
     await this.tenantRepository.save(result);
     return ResultData.ok(result, '操作成功');

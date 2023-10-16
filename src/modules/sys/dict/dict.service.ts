@@ -120,7 +120,7 @@ export class DictService {
     const result = await this.findOne({ name: createDictDto.name });
     if (
       Object.keys(instanceToPlain(result)).length > 0 &&
-      instanceToPlain(result).deleted === 0
+      instanceToPlain(result).deleted === '0'
     ) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),

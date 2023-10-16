@@ -28,7 +28,7 @@ export class User {
   role_ids: string;
 
   @Column({ comment: '部门ID' })
-  dept_id: number;
+  dept_id: string;
 
   @Column({ comment: '岗位编号数组' })
   post_ids: string;
@@ -40,7 +40,7 @@ export class User {
   mobile: string;
 
   @Column({ comment: '用户性别' })
-  sex: number;
+  sex: string;
 
   @Column({ comment: '头像地址' })
   avatar: string;
@@ -49,10 +49,10 @@ export class User {
   home_url: string;
 
   @Column({ comment: '帐号状态（0正常 1停用）' })
-  status: number;
+  status: string;
 
   @Column({ comment: '租户编号' })
-  tenant_id: number;
+  tenant_id: string;
 
   @Column({ comment: '最后登录IP' })
   login_ip: string | undefined;
@@ -73,7 +73,7 @@ export class User {
   update_time: string;
 
   @Column({ comment: '是否删除' })
-  deleted: number;
+  deleted: string;
 
   @Column({ comment: '删除时间' })
   deleted_time: string | undefined;

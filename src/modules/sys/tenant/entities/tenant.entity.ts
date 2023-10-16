@@ -18,7 +18,7 @@ export class Tenant {
 
   @Column({ comment: '联系人id' })
   @ApiProperty({ description: '联系人id' })
-  contact_user_id: number;
+  contact_user_id: string;
 
   @Column({ comment: '联系人姓名' })
   @ApiProperty({ description: '联系人姓名' })
@@ -30,7 +30,7 @@ export class Tenant {
 
   @Column({ comment: '租户状态' })
   @ApiProperty({ description: '租户状态' })
-  status: number;
+  status: string;
 
   @Column({ comment: '绑定域名' })
   @ApiProperty({ description: '绑定域名' })
@@ -38,7 +38,7 @@ export class Tenant {
 
   @Column({ comment: '租户套餐id' })
   @ApiProperty({ description: '租户套餐id' })
-  package_id: number;
+  package_id: string;
 
   @Column({ comment: '过期时间' })
   @ApiProperty({ description: '过期时间' })
@@ -46,7 +46,7 @@ export class Tenant {
 
   @Column({ comment: '账号数量' })
   @ApiProperty({ description: '账号数量' })
-  account_count: number;
+  account_count: string;
 
   @Column({ comment: '创建着' })
   @ApiProperty({ description: '创建着' })
@@ -66,7 +66,7 @@ export class Tenant {
 
   @Column({ comment: '是否删除' })
   @ApiProperty({ description: '是否删除' })
-  deleted: number;
+  deleted: string;
 
   @Column({ comment: '删除时间' })
   @ApiProperty({ description: '删除时间' })

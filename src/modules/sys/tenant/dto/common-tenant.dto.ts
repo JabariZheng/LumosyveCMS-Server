@@ -17,5 +17,5 @@ export class TenantPageDto extends QueryPageDto {
   contact_mobile: string;
 
   @ApiProperty({ description: '租户状态', required: false })
-  status: number;
+  status: string;
 }

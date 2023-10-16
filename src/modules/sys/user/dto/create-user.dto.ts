@@ -4,7 +4,7 @@
  * @Description: user.create.dto
  */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -27,7 +27,7 @@ export class CreateUserDto {
   role_ids: string;
 
   @ApiProperty({ description: '部门', required: false })
-  dept_id: number;
+  dept_id: string;
 
   @ApiProperty({ description: '岗位', required: false })
   post_ids: string;
@@ -40,10 +40,9 @@ export class CreateUserDto {
   @IsNotEmpty({ message: '请检查手机号码' })
   mobile: string;
 
-  @IsNumber()
   @ApiProperty({ description: '性别' })
   @IsNotEmpty({ message: '请检查性别' })
-  sex: number;
+  sex: string;
 
   @ApiProperty({ description: '头像', required: false })
   avatar: string;
@@ -53,8 +52,8 @@ export class CreateUserDto {
   home_url: string;
 
   @ApiProperty({ description: '账号状态', required: false })
-  status: number;
+  status: string;
 
   @ApiProperty({ description: '租户', required: false })
-  tenant_id: number;
+  tenant_id: string;
 }

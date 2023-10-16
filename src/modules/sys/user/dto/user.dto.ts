@@ -6,7 +6,6 @@
 
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
-import { number } from 'joi';
 
 /**
  * 获取用户信息
@@ -22,10 +21,10 @@ export class GetUserInfoDto {
  * 用户分页
  */
 export class GetUserPageDto {
-  @ApiProperty({ type: 'number', description: '页数' })
+  @ApiProperty({ description: '页数' })
   pageNo: number;
 
-  @ApiProperty({ type: Number, description: '每页条数' })
+  @ApiProperty({ description: '每页条数' })
   pageSize: number;
 
   @ApiProperty({ description: '账号', required: false })
@@ -35,7 +34,7 @@ export class GetUserPageDto {
   mobile: string;
 
   @ApiProperty({ description: '账号状态', required: false })
-  status: number;
+  status: string;
 }
 
 export class ActionByIdDot {
