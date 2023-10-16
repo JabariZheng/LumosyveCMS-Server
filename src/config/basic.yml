@@ -2,7 +2,7 @@
 app:
   prefix: '/admin-api'
   port: 7001
-  permission: false
+  permission: true
 # 数据库配置
 db:
   mysql:
@@ -42,3 +42,8 @@ swagger:
 # 错误码
 errorCode:
   valid: 400
+
+# 全局
+common:
+  # 白名单
+  whiteList: []

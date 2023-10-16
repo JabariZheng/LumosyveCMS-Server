@@ -3,7 +3,6 @@
  * @Date: 2023-08-14 16:31:09
  * @Description: 权限守卫
  */
-
 import {
   CanActivate,
   ExecutionContext,
@@ -15,9 +14,7 @@ import { Reflector } from '@nestjs/core';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { AuthService } from 'src/modules/sys/auth/auth.service';
 import { ALLOW_ANON } from '../decorators/allow-anon.decorator';
-import { ResultData } from 'src/utils/result';
 import { ConfigService } from '@nestjs/config';
-import { isBoolean } from 'class-validator';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -36,17 +33,21 @@ export class JwtAuthGuard implements CanActivate {
       // 不鉴权
       return true;
     }
-    console.log('permission', permission, isBoolean(permission));
     const allowAnon = this.reflector.getAllAndOverride<boolean>(ALLOW_ANON, [
       context.getHandler(),
       context.getClass(),
     ]);
     if (allowAnon) return true;
     const req = context.switchToHttp().getRequest();
+    // 校验白名单
+    const whiteList = this.configService.get('common.whiteList');
+    if (whiteList.includes(req.originalUrl)) {
+      return true;
+    }
+    // 校验token
     const accessToken = req.headers.authorization;
     if (!accessToken) throw new UnauthorizedException('请先登录');
     const auUserId = this.authService.validToken(accessToken);
-    console.log('auUserId', auUserId);
     if (!auUserId) {
       // 过期自动删除
       await this.cacheService.del(accessToken.replace('Bearer ', ''));
