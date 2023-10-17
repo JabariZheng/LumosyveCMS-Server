@@ -25,6 +25,7 @@ import { JwtAuthGuard } from './common/guards/auth.guard';
 import { ViewsModule } from './modules/sys/views/views.module';
 import { DictModule } from './modules/sys/dict/dict.module';
 import { DictDataModule } from './modules/sys/dict-data/dict-data.module';
+import { MenuModule } from './modules/sys/menu/menu.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { DictDataModule } from './modules/sys/dict-data/dict-data.module';
     ViewsModule,
     DictModule,
     DictDataModule,
+    MenuModule,
   ],
   controllers: [AppController],
   providers: [
