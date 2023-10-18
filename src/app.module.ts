@@ -26,6 +26,7 @@ import { ViewsModule } from './modules/sys/views/views.module';
 import { DictModule } from './modules/sys/dict/dict.module';
 import { DictDataModule } from './modules/sys/dict-data/dict-data.module';
 import { MenuModule } from './modules/sys/menu/menu.module';
+import { RoleModule } from './modules/sys/role/role.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { MenuModule } from './modules/sys/menu/menu.module';
     DictModule,
     DictDataModule,
     MenuModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [
