@@ -15,7 +15,7 @@ import { CacheService } from 'src/modules/cache/cache.service';
 import { GetPageDto } from './dto/index.dto';
 import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { formatDate, snowflakeID } from 'src/utils';
+import { snowflakeID } from 'src/utils';
 
 @Injectable()
 export class MenuService {
@@ -49,7 +49,7 @@ export class MenuService {
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     const newData: Menu = {
-      status: '0',
+      status: 0,
       ...createDto,
       id: snowflakeID.NextId() as number,
       deleted: 0,
@@ -119,7 +119,7 @@ export class MenuService {
       ...instanceToPlain(result),
       ...updateDto,
       id: +updateDto.id,
-      update_time: formatDate(+new Date()),
+      update_time: new Date(),
       updater: JSON.parse(currentUser).username,
     };
     await this.menuRepository.save(newData);
