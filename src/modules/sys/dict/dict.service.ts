@@ -13,7 +13,7 @@ import { FindManyOptions, Repository } from 'typeorm';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ResultData } from 'src/utils/result';
 import { ConfigService } from '@nestjs/config';
-import { formatDate, snowflakeID } from 'src/utils';
+import { snowflakeID } from 'src/utils';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { DictDatum } from '../dict-data/entities/dict-datum.entity';
@@ -94,7 +94,7 @@ export class DictService {
     let result = await this.findOne({ id: +id });
     result = instanceToPlain(result) as Dict;
     result.deleted = '1';
-    result.deleted_time = formatDate(+new Date());
+    result.deleted_time = new Date();
     // 字典数据删除
     let dictDataResult = await this.dictDataRepository.find({
       where: { dict_type: result.type },
@@ -102,7 +102,7 @@ export class DictService {
     dictDataResult = instanceToPlain(dictDataResult) as DictDatum[];
     dictDataResult = dictDataResult.map((item: DictDatum) => {
       item.deleted = '1';
-      item.deleted_time = formatDate(+new Date());
+      item.deleted_time = new Date();
       return item;
     });
     await this.dictRepository.save(result);
@@ -136,8 +136,8 @@ export class DictService {
       id: snowflakeID.NextId() as number,
       deleted: '0',
       creator: JSON.parse(currentUser).username,
-      create_time: formatDate(+new Date()),
-      update_time: formatDate(+new Date()),
+      create_time: new Date(),
+      update_time: new Date(),
       updater: JSON.parse(currentUser).username,
       deleted_time: undefined,
     };
@@ -168,7 +168,7 @@ export class DictService {
       ...instanceToPlain(result),
       ...updateDictDto,
       id: +updateDictDto.id,
-      update_time: formatDate(+new Date()),
+      update_time: new Date(),
       updater: JSON.parse(currentUser).username,
     };
     await this.dictRepository.save(newData);

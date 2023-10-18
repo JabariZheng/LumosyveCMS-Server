@@ -15,7 +15,7 @@ import { FindManyOptions, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
-import { formatDate, snowflakeID } from 'src/utils';
+import { snowflakeID } from 'src/utils';
 import { DictService } from '../dict/dict.service';
 
 @Injectable()
@@ -61,8 +61,8 @@ export class DictDataService {
       id: snowflakeID.NextId() as number,
       deleted: '0',
       creator: JSON.parse(currentUser).username,
-      create_time: formatDate(+new Date()),
-      update_time: formatDate(+new Date()),
+      create_time: new Date(),
+      update_time: new Date(),
       updater: JSON.parse(currentUser).username,
       deleted_time: undefined,
     };
@@ -84,7 +84,7 @@ export class DictDataService {
     let result = await this.findOne({ id: +id });
     result = instanceToPlain(result) as DictDatum;
     result.deleted = '1';
-    result.deleted_time = formatDate(+new Date());
+    result.deleted_time = new Date();
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     result.updater = JSON.parse(currentUser).username;
@@ -115,7 +115,7 @@ export class DictDataService {
       ...instanceToPlain(result),
       ...updateDictDatumDto,
       id: +updateDictDatumDto.id,
-      update_time: formatDate(+new Date()),
+      update_time: new Date(),
       updater: JSON.parse(currentUser).username,
     };
     await this.dictDataRepository.save(newData);

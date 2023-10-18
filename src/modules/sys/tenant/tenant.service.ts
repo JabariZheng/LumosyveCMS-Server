@@ -15,7 +15,7 @@ import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
-import { formatDate, snowflakeID } from 'src/utils';
+import { snowflakeID } from 'src/utils';
 
 @Injectable()
 export class TenantService {
@@ -103,8 +103,8 @@ export class TenantService {
       id: snowflakeID.NextId() as number,
       deleted: '0',
       creator: JSON.parse(currentUser).username,
-      create_time: formatDate(+new Date()),
-      update_time: formatDate(+new Date()),
+      create_time: new Date(),
+      update_time: new Date(),
       updater: JSON.parse(currentUser).username,
       deleted_time: undefined,
     };
@@ -125,7 +125,7 @@ export class TenantService {
     let result = await this.findOne({ id: +id });
     result = instanceToPlain(result) as Tenant;
     result.deleted = '1';
-    result.deleted_time = formatDate(+new Date());
+    result.deleted_time = new Date();
     await this.tenantRepository.save(result);
     return ResultData.ok(result, '操作成功');
   }
@@ -188,7 +188,7 @@ export class TenantService {
       ...instanceToPlain(result),
       ...updateTenantDto,
       id: +updateTenantDto.id,
-      update_time: formatDate(+new Date()),
+      update_time: new Date(),
       updater: JSON.parse(currentUser).username,
     };
     await this.tenantRepository.save(newData);

@@ -8,14 +8,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { GetUserPageDto } from './dto/user.dto';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth/auth.service';
-import { formatDate, snowflakeID } from 'src/utils';
+import { snowflakeID } from 'src/utils';
 
 @Injectable()
 export class UserService {
@@ -53,8 +53,8 @@ export class UserService {
       id: snowflakeID.NextId() as number,
       deleted: '0',
       creator: JSON.parse(currentUser).username,
-      create_time: formatDate(+new Date()),
-      update_time: formatDate(+new Date()),
+      create_time: new Date(),
+      update_time: new Date(),
       updater: JSON.parse(currentUser).username,
       deleted_time: undefined,
       login_ip: undefined,
@@ -77,7 +77,7 @@ export class UserService {
     let result = await this.findOne({ id: +id });
     result = instanceToPlain(result) as User;
     result.deleted = '1';
-    result.deleted_time = formatDate(+new Date());
+    result.deleted_time = new Date();
     await this.userRepository.save(result);
     return ResultData.ok(result, '操作成功');
   }
@@ -105,7 +105,7 @@ export class UserService {
       ...instanceToPlain(result),
       ...updateUserDto,
       id: +updateUserDto.id,
-      update_time: formatDate(+new Date()),
+      update_time: new Date(),
       updater: JSON.parse(currentUser).username,
     };
     await this.userRepository.save(newData);

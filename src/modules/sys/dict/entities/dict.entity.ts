@@ -26,17 +26,17 @@ export class Dict {
   creator: string;
 
   @Column({ comment: '创建时间' })
-  create_time: string;
+  create_time: Date;
 
   @Column({ comment: '更新者' })
   updater: string;
 
   @Column({ comment: '更新时间' })
-  update_time: string;
+  update_time: Date;
 
   @Column({ comment: '是否删除' })
   deleted: string;
 
   @Column({ comment: '删除时间' })
-  deleted_time: string;
+  deleted_time: Date;
 }

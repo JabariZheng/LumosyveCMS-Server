@@ -54,7 +54,7 @@ export class Tenant {
 
   @Column({ comment: '创建时间' })
   @ApiProperty({ description: '创建时间' })
-  create_time: string;
+  create_time: Date;
 
   @Column({ comment: '更新者' })
   @ApiProperty({ description: '更新者' })
@@ -62,7 +62,7 @@ export class Tenant {
 
   @Column({ comment: '更新时间' })
   @ApiProperty({ description: '更新时间' })
-  update_time: string;
+  update_time: Date;
 
   @Column({ comment: '是否删除' })
   @ApiProperty({ description: '是否删除' })
@@ -70,5 +70,5 @@ export class Tenant {
 
   @Column({ comment: '删除时间' })
   @ApiProperty({ description: '删除时间' })
-  deleted_time: string;
+  deleted_time: Date;
 }
