@@ -40,7 +40,7 @@ async function bootstrap() {
     .setTitle(swaggerConfig.title)
     .setDescription(swaggerConfig.description)
     .setVersion(swaggerConfig.version)
-    .addBasicAuth()
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, swaggerOptions);
   SwaggerModule.setup(`${prefix}/docs`, app, document);
@@ -48,13 +48,17 @@ async function bootstrap() {
   await app.listen(port);
 
   Logger.log(
-    Chalk.green(`Nest-Admin 服务启动成功 `),
+    Chalk.green(`Nest-Admin 服务启动成功     `),
     '\n',
-    Chalk.green('服务地址'),
-    `                http://localhost:${port}${prefix}/`,
+    Chalk.green('服务地址                    '),
+    `http://localhost:${port}${prefix}/`,
     '\n',
-    Chalk.green('swagger 文档地址        '),
+    Chalk.green('swagger 文档地址            '),
     `http://localhost:${port}${prefix}/docs/`,
+    '\n',
+    // 注意：swagger3访问openapi-json的方式不一样了
+    Chalk.green('swagger openapi-json访问地址'),
+    `http://localhost:${port}${prefix}/docs-json`,
   );
 }
 
