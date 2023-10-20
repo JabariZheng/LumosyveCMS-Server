@@ -3,6 +3,8 @@
  * @Date: 2023-10-17 22:57:06
  * @Description: entity.menu
  */
+import { Transform } from 'class-transformer';
+import { formatDate } from 'src/utils';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('sys_menu')
@@ -47,17 +49,20 @@ export class Menu {
   creator: string;
 
   @Column({ comment: '创建时间' })
+  @Transform(({ value }) => formatDate(value))
   create_time: Date;
 
   @Column({ comment: '更新者' })
   updater: string;
 
   @Column({ comment: '更新时间' })
+  @Transform(({ value }) => formatDate(value))
   update_time: Date;
 
   @Column({ comment: '是否已删除' })
   deleted: number;
 
   @Column({ comment: '删除时间' })
+  @Transform(({ value }) => formatDate(value))
   deleted_time: Date;
 }

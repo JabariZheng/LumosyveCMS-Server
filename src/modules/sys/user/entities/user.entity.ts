@@ -3,7 +3,8 @@
  * @Date: 2023-08-06 23:49:40
  * @Description: entity.user
  */
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
+import { formatDate } from 'src/utils';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('sys_user')
@@ -64,6 +65,7 @@ export class User {
   creator: string;
 
   @Column({ comment: '创建时间' })
+  @Transform(({ value }) => formatDate(value))
   create_time: Date;
 
   @Column({ comment: '更新者' })
@@ -76,5 +78,6 @@ export class User {
   deleted: string;
 
   @Column({ comment: '删除时间' })
+  @Transform(({ value }) => formatDate(value))
   deleted_time: Date;
 }

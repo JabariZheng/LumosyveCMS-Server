@@ -4,6 +4,8 @@
  * @Description: tenant.entity
  */
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { formatDate } from 'src/utils';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('sys_tenant')
@@ -42,6 +44,7 @@ export class Tenant {
 
   @Column({ comment: '过期时间' })
   @ApiProperty({ description: '过期时间' })
+  @Transform(({ value }) => formatDate(value))
   expire_time: string;
 
   @Column({ comment: '账号数量' })
@@ -54,6 +57,7 @@ export class Tenant {
 
   @Column({ comment: '创建时间' })
   @ApiProperty({ description: '创建时间' })
+  @Transform(({ value }) => formatDate(value))
   create_time: Date;
 
   @Column({ comment: '更新者' })
@@ -62,6 +66,7 @@ export class Tenant {
 
   @Column({ comment: '更新时间' })
   @ApiProperty({ description: '更新时间' })
+  @Transform(({ value }) => formatDate(value))
   update_time: Date;
 
   @Column({ comment: '是否删除' })
@@ -70,5 +75,6 @@ export class Tenant {
 
   @Column({ comment: '删除时间' })
   @ApiProperty({ description: '删除时间' })
+  @Transform(({ value }) => formatDate(value))
   deleted_time: Date;
 }

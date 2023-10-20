@@ -3,6 +3,8 @@
  * @Date: 2023-09-02 18:19:30
  * @Description: entity.dict
  */
+import { Transform } from 'class-transformer';
+import { formatDate } from 'src/utils';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('sys_dict_type')
@@ -26,17 +28,20 @@ export class Dict {
   creator: string;
 
   @Column({ comment: '创建时间' })
+  @Transform(({ value }) => formatDate(value))
   create_time: Date;
 
   @Column({ comment: '更新者' })
   updater: string;
 
   @Column({ comment: '更新时间' })
+  @Transform(({ value }) => formatDate(value))
   update_time: Date;
 
   @Column({ comment: '是否删除' })
   deleted: string;
 
   @Column({ comment: '删除时间' })
+  @Transform(({ value }) => formatDate(value))
   deleted_time: Date;
 }

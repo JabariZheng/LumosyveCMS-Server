@@ -3,6 +3,8 @@
  * @Date: 2023-10-18 23:12:58
  * @Description: Entity.role
  */
+import { Transform } from 'class-transformer';
+import { formatDate } from 'src/utils';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('sys_role')
@@ -32,17 +34,20 @@ export class Role {
   creator: string;
 
   @Column({ type: 'datetime', comment: '创建时间' })
+  @Transform(({ value }) => formatDate(value))
   create_time: Date;
 
   @Column({ type: 'varchar', comment: '更新者' })
   updater: string;
 
   @Column({ type: 'datetime', comment: '更新时间' })
+  @Transform(({ value }) => formatDate(value))
   update_time: Date;
 
   @Column({ type: 'tinyint', comment: '是否已删除' })
   deleted: number;
 
   @Column({ type: 'datetime', comment: '删除时间' })
+  @Transform(({ value }) => formatDate(value))
   deleted_time: Date;
 }
