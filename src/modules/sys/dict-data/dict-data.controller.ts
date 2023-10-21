@@ -17,13 +17,12 @@ import {
 import { DictDataService } from './dict-data.service';
 import { CreateDictDatumDto } from './dto/create-dict-datum.dto';
 import { UpdateDictDatumDto } from './dto/update-dict-datum.dto';
-import { getControllerName } from 'src/utils';
 import { ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { ActionByIdDot } from '../dict/dto/index.dto';
 import { GetPageDto, ListByType } from './dto/index.dto';
 
 @ApiTags('字典数据管理')
-@Controller(getControllerName(__dirname))
+@Controller('/sys/dict-data')
 export class DictDataController {
   constructor(private readonly dictDataService: DictDataService) {}
 

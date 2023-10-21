@@ -17,12 +17,11 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { getControllerName } from 'src/utils';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ActionByIdDot, GetUserInfoDto, GetUserPageDto } from './dto/user.dto';
 import { ResultData } from 'src/utils/result';
 
-@Controller(getControllerName(__dirname))
+@Controller('/sys/user')
 @ApiTags('用户管理')
 export class UserController {
   constructor(private readonly userService: UserService) {}

@@ -18,12 +18,11 @@ import { MenuService } from './menu.service';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { getControllerName } from 'src/utils';
 import { ActionByIdDot, ActionByNumberIdDot } from 'src/common/dto/common.dto';
 import { GetPageDto } from './dto/index.dto';
 
 @ApiTags('菜单管理')
-@Controller(getControllerName(__dirname))
+@Controller('/sys/menu')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 

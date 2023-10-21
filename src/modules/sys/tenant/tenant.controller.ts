@@ -18,13 +18,12 @@ import { TenantService } from './tenant.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { getControllerName } from 'src/utils';
 import { TenantPageDto } from './dto/common-tenant.dto';
 import { ResultData } from 'src/utils/result';
 import { ActionByIdDot } from './dto/index.dto';
 
 @ApiTags('租户管理')
-@Controller(getControllerName(__dirname))
+@Controller('/sys/tenant')
 export class TenantController {
   constructor(private readonly tenantService: TenantService) {}
 

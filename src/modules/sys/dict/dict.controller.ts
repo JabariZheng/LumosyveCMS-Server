@@ -16,13 +16,12 @@ import {
 } from '@nestjs/common';
 import { DictService } from './dict.service';
 import { ActionByIdDot, GetPageDto } from './dto/index.dto';
-import { getControllerName } from 'src/utils';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateDictDto } from './dto/create-dict.dto';
 import { UpdateDictDto } from './dto/update-dict.dto';
 
 @ApiTags('字典管理')
-@Controller(getControllerName(__dirname))
+@Controller('/sys/dict')
 export class DictController {
   constructor(private readonly dictService: DictService) {}
 

@@ -16,14 +16,13 @@ import {
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import { getControllerName } from 'src/utils';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/auth.dto';
 import { ApiBody } from '@nestjs/swagger';
 import { ResultData } from 'src/utils/result';
 import { AllowAnon } from 'src/common/decorators/allow-anon.decorator';
 
-@Controller(getControllerName(__dirname))
+@Controller('/sys/auth')
 @ApiTags('权限管理')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

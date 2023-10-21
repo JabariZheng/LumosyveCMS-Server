@@ -20,10 +20,9 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ActionByNumberIdDot } from 'src/common/dto/common.dto';
 import { GetPageDto } from './dto/index.dto';
-import { getControllerName } from 'src/utils';
 
 @ApiTags('角色管理')
-@Controller(getControllerName(__dirname))
+@Controller('/sys/role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
