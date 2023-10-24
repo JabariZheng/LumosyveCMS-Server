@@ -16,6 +16,9 @@ export class QueryPageDto {
 
 export class CreateTokenDto {
   @ApiProperty({ description: 'token' })
+  token: string;
+
+  @ApiProperty({ description: 'token(Bearer)' })
   accessToken: string;
 
   @ApiProperty({ description: '刷新token' })

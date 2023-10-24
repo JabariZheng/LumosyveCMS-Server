@@ -16,7 +16,7 @@ import {
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/auth.dto';
 import { ApiBody } from '@nestjs/swagger';
 import { ResultData } from 'src/utils/result';
@@ -28,12 +28,20 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @ApiOperation({ summary: '登录' })
   @AllowAnon()
   login(@Body() loginParams: LoginDto) {
     return this.authService.login(loginParams);
   }
 
+  @Get('logout')
+  @ApiOperation({ summary: '登出' })
+  logout(@Headers() headers: Record<string, string>) {
+    return this.authService.logout(headers['authorization']);
+  }
+
   @Get('info')
+  @ApiOperation({ summary: '获取当前登录用户信息' })
   getInfo(@Headers() headers: Record<string, string>) {
     return this.authService.getInfo(headers['authorization']);
   }

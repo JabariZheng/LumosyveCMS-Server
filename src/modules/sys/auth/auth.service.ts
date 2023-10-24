@@ -29,6 +29,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly cacheService: CacheService,
   ) {}
+
   /**
    * 登录
    */
@@ -67,24 +68,16 @@ export class AuthService {
     return ResultData.ok(data);
   }
 
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  /**
+   * 登出
+   */
+  public async logout(token: string) {
+    const id = this.validToken(token);
+    if (!id) {
+      throw new UnauthorizedException('登录已失效，请重新登录');
+    }
+    await this.cacheService.del(id + '');
+    return ResultData.ok({});
   }
 
   /**
@@ -92,10 +85,11 @@ export class AuthService {
    */
   public genToken(payload: { id: string }): CreateTokenDto {
     const accessToken = `Bearer ${this.jwtService.sign(payload)}`;
+    const token = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
       expiresIn: this.configService.get('jwt.refreshExpiresIn'),
     });
-    return { accessToken, refreshToken };
+    return { token, accessToken, refreshToken };
   }
 
   /**
