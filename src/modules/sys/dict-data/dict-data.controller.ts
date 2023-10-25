@@ -65,7 +65,7 @@ export class DictDataController {
   @Get('listByType')
   @ApiOperation({ summary: '类型下的数据' })
   getListByType(@Query() query: ListByType) {
-    return this.dictDataService.getListByType(query.type);
+    return this.dictDataService.getListByType(query.dictType);
   }
 
   @Get('info')

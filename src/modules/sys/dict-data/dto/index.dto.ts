@@ -29,5 +29,5 @@ export class ListByType {
   @IsString()
   @ApiProperty({ description: '字典类型' })
   @IsNotEmpty({ message: '请检查字典类型' })
-  type: string;
+  dictType: string;
 }
