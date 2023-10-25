@@ -44,7 +44,7 @@ export class User {
   sex: string;
 
   @Column({ comment: '头像地址' })
-  avatar: string;
+  avatar_url: string;
 
   @Column({ comment: '默认首页' })
   home_url: string;

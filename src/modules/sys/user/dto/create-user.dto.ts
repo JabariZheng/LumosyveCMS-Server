@@ -45,7 +45,7 @@ export class CreateUserDto {
   sex: string;
 
   @ApiProperty({ description: '头像', required: false })
-  avatar: string;
+  avatar_url: string;
 
   @IsString()
   @ApiProperty({ description: '默认首页', required: false })
