@@ -45,6 +45,17 @@ export class AuthController {
   getInfo(@Headers() headers: Record<string, string>) {
     return this.authService.getInfo(headers['authorization']);
   }
+  @Get('permissions')
+  @ApiOperation({ summary: '获取当前登录用户的权限信息' })
+  getPermissions(@Headers() headers: Record<string, string>) {
+    return this.authService.getPermissions(headers['authorization']);
+  }
+
+  @Get('menuRoute')
+  @ApiOperation({ summary: '获取当前登录用户的菜单信息' })
+  getMenuRoute(@Headers() headers: Record<string, string>) {
+    return this.authService.getMenuRoute(headers['authorization']);
+  }
 
   // @Post()
   // create(@Body() createAuthDto: CreateAuthDto) {

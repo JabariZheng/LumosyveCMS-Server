@@ -4,8 +4,8 @@
  * @Description: auth.service
  */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+// import { CreateAuthDto } from './dto/create-auth.dto';
+// import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LoginDto } from './dto/auth.dto';
 import { ResultData } from 'src/utils/result';
 import { JwtService } from '@nestjs/jwt';
@@ -17,6 +17,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Tenant } from '../tenant/entities/tenant.entity';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
+
+import MenuJSON from './json/menu';
 
 @Injectable()
 export class AuthService {
@@ -123,5 +125,39 @@ export class AuthService {
       await this.cacheService.set(id + '', cacheData);
     }
     return ResultData.ok({ info: JSON.parse(cacheData), resources: [] });
+  }
+
+  /**
+   * 获取当前登录用户信息（TODO）
+   */
+  public async getPermissions(token: string) {
+    const id = this.validToken(token);
+    if (!id) {
+      throw new UnauthorizedException('登录已失效，请重新登录');
+    }
+    let cacheData = await this.cacheService.get(id + '');
+    // jwt验证已经登录，但是redis里没有了用户信息记录，则重新查询之后存起来
+    if (!cacheData) {
+      const getUser = await this.userRepository.findOne({
+        where: { id: +id },
+      });
+      cacheData = JSON.stringify(instanceToPlain(getUser));
+    }
+    const getCurrentInfo: User = JSON.parse(cacheData);
+    return ResultData.ok({
+      stringPermissions: [],
+      roles: getCurrentInfo.role_ids || [],
+    });
+  }
+
+  /**
+   * 获取当前登录用户菜单数据（TODO）
+   */
+  public async getMenuRoute(token: string) {
+    const id = this.validToken(token);
+    if (!id) {
+      throw new UnauthorizedException('登录已失效，请重新登录');
+    }
+    return ResultData.ok(MenuJSON);
   }
 }
