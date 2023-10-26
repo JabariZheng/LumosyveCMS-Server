@@ -4,9 +4,11 @@ WORKDIR /usr/app
 
 COPY package.json ./
 
-RUN npm install cnpm -g
+# RUN npm install cnpm -g
 
-RUN cnpm install
+# RUN cnpm install
+
+RUN npm install
 
 COPY . .
 
@@ -18,9 +20,11 @@ WORKDIR /usr/app
 
 COPY package.json ./
 
-RUN npm install cnpm -g
+# RUN npm install cnpm -g
 
-RUN cnpm install
+# RUN cnpm install
+
+RUN npm install
 
 COPY . .
 
