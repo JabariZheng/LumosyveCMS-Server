@@ -1,0 +1,23 @@
+# 数据库配置
+db:
+  mysql:
+    host: '192.168.1.35'
+    username: 'root'
+    password: '4zbndsfh'
+    database: 'backend_node'
+    port: 3306
+    charset: 'utf8mb4'
+    logger: 'advanced-console'
+    logging: false
+    multipleStatements: true
+    dropSchema: false
+    synchronize: false
+    supportBigNumbers: true
+    bigNumberStrings: true
+
+# redis 配置
+redis:
+  host: '192.168.1.35'
+  port: 6379
+  db: 0
+  password: '4zbndsfh'
