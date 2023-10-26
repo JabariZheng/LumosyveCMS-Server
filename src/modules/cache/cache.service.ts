@@ -44,4 +44,9 @@ export class CacheService {
     log2term('redis flushAll');
     return await this.redisClient.flushAll();
   }
+  // 获取匹配key的数据
+  async getKeys(key: string) {
+    const keys = await this.redisClient.keys(key);
+    return keys;
+  }
 }

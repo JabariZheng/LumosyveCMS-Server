@@ -163,6 +163,13 @@ export class UserService {
   }
 
   /**
+   * 查询在线人数（TODO）
+   */
+  public async getOnlineUsers(): Promise<ResultData> {
+    return ResultData.ok(1);
+  }
+
+  /**
    * 注册用户
    */
   // public async registerUser(createUserDto: CreateUserDto) {

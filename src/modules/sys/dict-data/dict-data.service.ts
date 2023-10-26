@@ -169,10 +169,11 @@ export class DictDataService {
     const result: [DictDatum[], number] = await this.queryCount({
       where: { status: 0, deleted: 0, dict_type: type },
     });
-    return ResultData.ok({
-      list: instanceToPlain(result[0]),
-      total: result[1],
-    });
+    // return ResultData.ok({
+    //   list: instanceToPlain(result[0]),
+    //   total: result[1],
+    // });
+    return ResultData.ok(instanceToPlain(result[0]));
   }
 
   /**

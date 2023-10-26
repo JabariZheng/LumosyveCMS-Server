@@ -69,6 +69,12 @@ export class UserController {
     return this.userService.getInfo(+query.id);
   }
 
+  @Get('onlines')
+  @ApiOperation({ summary: '获取在线人数' })
+  getOnlineUsers() {
+    return this.userService.getOnlineUsers();
+  }
+
   // @Get('page')
   // @ApiOperation({ summary: '用户分页' })
   // getUserPage(@Query() userPage: GetUserPageDto) {
