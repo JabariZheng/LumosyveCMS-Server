@@ -11,6 +11,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LoggerMiddleware } from './middleware/log.middleware';
 import { Logger } from './common/libs/log4js/log4js';
 import { HttpExceptionsFilter } from './common/libs/log4js/http-exceptions-filter';
+import { NotFoundFilter } from './common/libs/notFoundFilter';
 
 async function bootstrap() {
   const Chalk = await import('chalk');
@@ -22,7 +23,7 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService<any>);
-  const { prefix, port } = configService.get('app');
+  const { prefix, host, port } = configService.get('app');
 
   // 设置api访问前缀
   app.setGlobalPrefix(prefix);
@@ -31,6 +32,7 @@ async function bootstrap() {
   // 设置校验pipe
   app.useGlobalPipes(new ValidationPipe());
   // HTTP异常
+  app.useGlobalFilters(new NotFoundFilter());
   app.useGlobalFilters(new HttpExceptionsFilter());
 
   // 设置swagger
@@ -51,14 +53,14 @@ async function bootstrap() {
     Chalk.green(`Nest-Admin 服务启动成功     `),
     '\n',
     Chalk.green('服务地址                    '),
-    `http://localhost:${port}${prefix}/`,
+    `http://${host}:${port}${prefix}/`,
     '\n',
     Chalk.green('swagger 文档地址            '),
-    `http://localhost:${port}${prefix}/docs/`,
+    `http://${host}:${port}${prefix}/docs/`,
     '\n',
     // 注意：swagger3访问openapi-json的方式不一样了
     Chalk.green('swagger openapi-json访问地址'),
-    `http://localhost:${port}${prefix}/docs-json`,
+    `http://${host}:${port}${prefix}/docs-json`,
   );
 }
 
