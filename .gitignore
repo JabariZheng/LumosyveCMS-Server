@@ -2,6 +2,7 @@
 /dist
 /node_modules
 /Nestjs App
+/public/uploads/*
 
 # Logs
 logs

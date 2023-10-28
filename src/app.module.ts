@@ -18,15 +18,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import configuration from './config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { APP_GUARD } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './modules/sys/auth/auth.module';
 import { TenantModule } from './modules/sys/tenant/tenant.module';
-import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/auth.guard';
 import { ViewsModule } from './modules/sys/views/views.module';
 import { DictModule } from './modules/sys/dict/dict.module';
 import { DictDataModule } from './modules/sys/dict-data/dict-data.module';
 import { MenuModule } from './modules/sys/menu/menu.module';
 import { RoleModule } from './modules/sys/role/role.module';
+import { join } from 'path';
+import { UploadImagesModule } from './modules/sys/upload-images/upload-images.module';
 
 @Module({
   imports: [
@@ -43,7 +46,7 @@ import { RoleModule } from './modules/sys/role/role.module';
       useFactory: (config: ConfigService) => {
         return {
           type: 'mysql',
-          // logger: false,
+          logger: false,
           autoLoadEntities: true,
           ...config.get('db.mysql'),
         } as TypeOrmModuleOptions;
@@ -51,6 +54,11 @@ import { RoleModule } from './modules/sys/role/role.module';
     }),
     // redisCahce
     CacheModule,
+    // 静态文件服务模块
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public', 'uploads'),
+      serveRoot: '/public/uploads',
+    }),
     // 常规模块
     AuthModule,
     UserModule,
@@ -60,6 +68,7 @@ import { RoleModule } from './modules/sys/role/role.module';
     DictDataModule,
     MenuModule,
     RoleModule,
+    UploadImagesModule,
   ],
   controllers: [AppController],
   providers: [
