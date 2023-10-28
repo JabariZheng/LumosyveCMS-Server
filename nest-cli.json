@@ -5,7 +5,9 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "assets": [
-      "**/*.yml"
+      "**/*.yml",
+      "**/*.crt",
+      "**/*.key"
     ],
     "watchAssets": true
   }

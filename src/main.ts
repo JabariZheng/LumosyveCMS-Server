@@ -12,6 +12,8 @@ import { LoggerMiddleware } from './middleware/log.middleware';
 import { Logger } from './common/libs/log4js/log4js';
 import { HttpExceptionsFilter } from './common/libs/log4js/http-exceptions-filter';
 import { NotFoundFilter } from './common/libs/notFoundFilter';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 async function bootstrap() {
   const Chalk = await import('chalk');
@@ -20,6 +22,10 @@ async function bootstrap() {
   const app: any = await NestFactory.create(AppModule, {
     cors: true,
     logger: ['error', 'warn'],
+    // httpsOptions: {
+    //   key: readFileSync(join(__dirname, './ssl/BackendNest.key')),
+    //   cert: readFileSync(join(__dirname, './ssl/BackendNest.crt')),
+    // },
   });
 
   const configService = app.get(ConfigService<any>);
