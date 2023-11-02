@@ -18,17 +18,17 @@ export class Tenant {
   @ApiProperty({ description: '租户名称' })
   name: string;
 
-  @Column({ comment: '联系人id' })
+  @Column({ name: 'contact_user_id', comment: '联系人id' })
   @ApiProperty({ description: '联系人id' })
-  contact_user_id: string;
+  contactUserId: string;
 
-  @Column({ comment: '联系人姓名' })
+  @Column({ name: 'contact_name', comment: '联系人姓名' })
   @ApiProperty({ description: '联系人姓名' })
-  contact_name: string;
+  contactName: string;
 
-  @Column({ comment: '联系人手机' })
+  @Column({ name: 'contact_mobile', comment: '联系人手机' })
   @ApiProperty({ description: '联系人手机' })
-  contact_mobile: string;
+  contactMobile: string;
 
   @Column({ comment: '租户状态' })
   @ApiProperty({ description: '租户状态' })
@@ -38,43 +38,43 @@ export class Tenant {
   @ApiProperty({ description: '绑定域名' })
   domain: string;
 
-  @Column({ comment: '租户套餐id' })
+  @Column({ name: 'package_id', comment: '租户套餐id' })
   @ApiProperty({ description: '租户套餐id' })
-  package_id: string;
+  packageId: string;
 
-  @Column({ comment: '过期时间' })
+  @Column({ name: 'expire_time', comment: '过期时间' })
   @ApiProperty({ description: '过期时间' })
   @Transform(({ value }) => formatDate(value))
-  expire_time: string;
+  expireTime: Date;
 
-  @Column({ comment: '账号数量' })
+  @Column({ name: 'account_count', comment: '账号数量' })
   @ApiProperty({ description: '账号数量' })
-  account_count: string;
+  accountCount: string;
 
   @Column({ comment: '创建着' })
   @ApiProperty({ description: '创建着' })
   creator: string;
 
-  @Column({ comment: '创建时间' })
+  @Column({ name: 'create_time', comment: '创建时间' })
   @ApiProperty({ description: '创建时间' })
   @Transform(({ value }) => formatDate(value))
-  create_time: Date;
+  createTime: Date;
 
   @Column({ comment: '更新者' })
   @ApiProperty({ description: '更新者' })
   updater: string;
 
-  @Column({ comment: '更新时间' })
+  @Column({ name: 'update_time', comment: '更新时间' })
   @ApiProperty({ description: '更新时间' })
   @Transform(({ value }) => formatDate(value))
-  update_time: Date;
+  updateTime: Date;
 
   @Column({ comment: '是否删除' })
   @ApiProperty({ description: '是否删除' })
   deleted: string;
 
-  @Column({ comment: '删除时间' })
+  @Column({ name: 'deleted_time', comment: '删除时间' })
   @ApiProperty({ description: '删除时间' })
-  @Transform(({ value }) => formatDate(value))
-  deleted_time: Date;
+  @Transform(({ value }) => value && formatDate(value))
+  deletedTime: Date | undefined;
 }

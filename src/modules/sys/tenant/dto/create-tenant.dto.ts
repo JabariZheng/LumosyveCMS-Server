@@ -13,13 +13,13 @@ export class CreateTenantDto {
   name: string;
 
   @ApiProperty({ description: '联系人id' })
-  contact_user_id: string;
+  contactUserId: string;
 
   @ApiProperty({ description: '联系人姓名' })
-  contact_name: string;
+  contactName: string;
 
   @ApiProperty({ description: '联系人手机' })
-  contact_mobile: string;
+  contactMobile: string;
 
   @ApiProperty({ description: '租户状态' })
   @IsNotEmpty({ message: '请检查租户状态' })
@@ -29,30 +29,30 @@ export class CreateTenantDto {
   domain: string;
 
   @ApiProperty({ description: '租户套餐id' })
-  package_id: string;
+  packageId: string;
 
   @ApiProperty({ description: '过期时间' })
-  expire_time: string;
+  expireTime: Date;
 
   @ApiProperty({ description: '账号数量' })
-  account_count: string;
+  accountCount: string;
 
   @ApiProperty({ description: '创建着' })
   creator: string;
 
   @ApiProperty({ description: '创建时间' })
-  create_time: string;
+  createTime: Date;
 
   @ApiProperty({ description: '更新者' })
   updater: string;
 
   @ApiProperty({ description: '更新时间' })
-  update_time: string;
+  updateTime: Date;
 
   @ApiProperty({ description: '是否删除' })
   // @IsNotEmpty({ message: '请检查租户是否删除' })
   deleted: string;
 
   @ApiProperty({ description: '删除时间' })
-  deleted_time: string;
+  deletedTime: Date | undefined;
 }

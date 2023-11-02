@@ -12,13 +12,14 @@ export class GetPageDto extends QueryPageDto {
   name: string;
   @ApiProperty({ description: '字典类型', type: String, required: false })
   type: string;
-  @ApiProperty({ description: '状态', type: String, required: false })
-  status: string;
+  @ApiProperty({ description: '状态', type: Number, required: false })
+  status: number;
 }
 
 export class ActionByIdDot {
-  @IsString()
+  // @IsString()
+  // @IsNumber()
   @ApiProperty({ description: 'id' })
   @IsNotEmpty({ message: '请检查Id' })
-  id: string;
+  id: string | number;
 }

@@ -31,11 +31,108 @@ export class DictService {
   ) {}
 
   /**
+   * 新增
+   */
+  public async create(
+    createDictDto: CreateDictDto,
+    authorization: string,
+  ): Promise<ResultData> {
+    const result = await this.findOne({ name: createDictDto.name });
+    if (
+      Object.keys(instanceToPlain(result)).length > 0 &&
+      instanceToPlain(result).deleted === '0'
+    ) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `已存在${createDictDto.name}`,
+      );
+    }
+
+    const auUserId = this.authService.validToken(authorization);
+    const currentUser = await this.cacheService.get(auUserId);
+    const newData: Dict = {
+      status: 0,
+      ...createDictDto,
+      id: snowflakeID.NextId() as number,
+      deleted: 0,
+      creator: JSON.parse(currentUser).username,
+      createTime: new Date(),
+      updateTime: new Date(),
+      updater: JSON.parse(currentUser).username,
+      deletedTime: undefined,
+    };
+    await this.dictRepository.save(newData);
+    return ResultData.ok(newData, '操作成功');
+  }
+
+  /**
+   * 删除
+   */
+  public async remove(id: number) {
+    if (!id) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        '请检查id',
+      );
+    }
+    // 字典类型删除
+    let result = await this.findOne({ id: +id });
+    result = instanceToPlain(result) as Dict;
+    result.deleted = 1;
+    result.deletedTime = new Date();
+    // 字典数据删除
+    let dictDataResult = await this.dictDataRepository.find({
+      where: { dict_type: result.type },
+    });
+    dictDataResult = instanceToPlain(dictDataResult) as DictDatum[];
+    dictDataResult = dictDataResult.map((item: DictDatum) => {
+      item.deleted = '1';
+      item.deleted_time = new Date();
+      return item;
+    });
+    await this.dictRepository.save(result);
+    await this.dictDataRepository.save(dictDataResult);
+    return ResultData.ok(result, '操作成功');
+  }
+
+
+  /**
+   * 更新
+   */
+  public async update(updateDictDto: UpdateDictDto, authorization: string) {
+    if (!updateDictDto.id) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        '请检查id',
+      );
+    }
+    const result = await this.findOne({ id: +updateDictDto.id });
+    if (!result) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `未查询到${updateDictDto.id}，请检查id`,
+      );
+    }
+    const auUserId = this.authService.validToken(authorization);
+    const currentUser = await this.cacheService.get(auUserId);
+    const newData = {
+      ...instanceToPlain(result),
+      ...updateDictDto,
+      id: +updateDictDto.id,
+      updateTime: new Date(),
+      updater: JSON.parse(currentUser).username,
+    };
+    await this.dictRepository.save(newData);
+    return ResultData.ok(newData, '操作成功');
+  }
+
+  /**
    * 分页
    */
   public async getPage(dto: GetPageDto): Promise<ResultData> {
     const params: GetPageDto = {
       ...dto,
+      status: dto.status || 0,
       pageNo: dto.pageNo ? +dto.pageNo : 1,
       pageSize: dto.pageSize ? +dto.pageSize : 15,
     };
@@ -45,9 +142,11 @@ export class DictService {
       name: params.name,
       type: params.type,
     };
+    console.log('where', where);
+
     const result: [Dict[], number] = await this.queryCount({
       where,
-      order: { update_time: 'DESC' },
+      order: { updateTime: 'DESC' },
       skip: (params.pageNo - 1) * params.pageSize,
       take: params.pageSize,
     });
@@ -80,100 +179,6 @@ export class DictService {
     return ResultData.ok(result ? instanceToPlain(result) : {});
   }
 
-  /**
-   * 删除
-   */
-  public async remove(id: number) {
-    if (!id) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        '请检查id',
-      );
-    }
-    // 字典类型删除
-    let result = await this.findOne({ id: +id });
-    result = instanceToPlain(result) as Dict;
-    result.deleted = '1';
-    result.deleted_time = new Date();
-    // 字典数据删除
-    let dictDataResult = await this.dictDataRepository.find({
-      where: { dict_type: result.type },
-    });
-    dictDataResult = instanceToPlain(dictDataResult) as DictDatum[];
-    dictDataResult = dictDataResult.map((item: DictDatum) => {
-      item.deleted = '1';
-      item.deleted_time = new Date();
-      return item;
-    });
-    await this.dictRepository.save(result);
-    await this.dictDataRepository.save(dictDataResult);
-    return ResultData.ok(result, '操作成功');
-  }
-
-  /**
-   * 新增
-   */
-  public async create(
-    createDictDto: CreateDictDto,
-    authorization: string,
-  ): Promise<ResultData> {
-    const result = await this.findOne({ name: createDictDto.name });
-    if (
-      Object.keys(instanceToPlain(result)).length > 0 &&
-      instanceToPlain(result).deleted === '0'
-    ) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `已存在${createDictDto.name}`,
-      );
-    }
-
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
-    const newData: Dict = {
-      status: '0',
-      ...createDictDto,
-      id: snowflakeID.NextId() as number,
-      deleted: '0',
-      creator: JSON.parse(currentUser).username,
-      create_time: new Date(),
-      update_time: new Date(),
-      updater: JSON.parse(currentUser).username,
-      deleted_time: undefined,
-    };
-    await this.dictRepository.save(newData);
-    return ResultData.ok(newData, '操作成功');
-  }
-
-  /**
-   * 更新
-   */
-  public async update(updateDictDto: UpdateDictDto, authorization: string) {
-    if (!updateDictDto.id) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        '请检查id',
-      );
-    }
-    const result = await this.findOne({ id: +updateDictDto.id });
-    if (!result) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `未查询到${updateDictDto.id}，请检查id`,
-      );
-    }
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
-    const newData = {
-      ...instanceToPlain(result),
-      ...updateDictDto,
-      id: +updateDictDto.id,
-      update_time: new Date(),
-      updater: JSON.parse(currentUser).username,
-    };
-    await this.dictRepository.save(newData);
-    return ResultData.ok(newData, '操作成功');
-  }
 
   findAll() {
     return `This action returns all dict`;

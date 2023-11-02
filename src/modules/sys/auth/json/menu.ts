@@ -13,8 +13,8 @@ export default [
     },
     children: [
       {
-        path: '/sys/tenant/index',
-        component: '/sys/tenant/index',
+        path: '/sys/tenant/list',
+        component: '/sys/tenant/list',
         children: [],
         meta: {
           icon: 'icon-grid',
@@ -22,10 +22,10 @@ export default [
           color: '',
           title: '租户管理',
         },
-        name: 'ViewsSystenantIndex',
+        name: 'ViewsSysTenantList',
         id: '1-1',
         leaf: false,
-        url: '/sys/tenant/index',
+        url: '/sys/tenant/list',
         target: '',
       },
       {
@@ -77,7 +77,23 @@ export default [
       {
         path: '/sys/dictType/list',
         component: '/sys/dictType/list',
-        children: [],
+        children: [
+          {
+            path: '/sys/dictData/list',
+            component: '/sys/dictData/list',
+            meta: {
+              icon: '',
+              hideMenu: true,
+              color: '',
+              title: '数据查看',
+            },
+            name: 'ViewsSysDictDataList',
+            id: '1-5-1',
+            leaf: true,
+            url: '/sys/dictData/list',
+            target: '',
+          },
+        ],
         meta: {
           icon: 'icon-social-dropbox',
           hideMenu: false,
@@ -118,7 +134,7 @@ export default [
             component: '/seller/app/home/index',
             children: [],
             meta: {
-              icon: 'icon-user',
+              icon: 'icon-grid',
               hideMenu: false,
               color: '',
               title: '首页图管理',

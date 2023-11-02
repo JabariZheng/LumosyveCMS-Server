@@ -19,6 +19,7 @@ import { ActionByIdDot, GetPageDto } from './dto/index.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateDictDto } from './dto/create-dict.dto';
 import { UpdateDictDto } from './dto/update-dict.dto';
+import { FormatDtoEmpty } from 'src/common/decorators/format-dto.decorator';
 
 @ApiTags('字典管理')
 @Controller('/sys/dict')
@@ -33,7 +34,7 @@ export class DictController {
 
   @Delete('delete')
   @ApiOperation({ summary: '删除' })
-  remove(@Query() query: ActionByIdDot) {
+  remove(@Body() query: ActionByIdDot) {
     console.log('query', query, query.id);
     return this.dictService.remove(+query.id);
   }
@@ -46,7 +47,7 @@ export class DictController {
 
   @Get('page')
   @ApiOperation({ summary: '分页' })
-  getPage(@Query() page: GetPageDto) {
+  getPage(@FormatDtoEmpty() page: GetPageDto) {
     return this.dictService.getPage(page);
   }
 

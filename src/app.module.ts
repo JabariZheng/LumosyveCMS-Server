@@ -61,9 +61,9 @@ import { UploadImagesModule } from './modules/sys/upload-images/upload-images.mo
     }),
     // 常规模块
     AuthModule,
-    UserModule,
     TenantModule,
-    ViewsModule,
+    UserModule,
+    // ViewsModule,
     DictModule,
     DictDataModule,
     MenuModule,
