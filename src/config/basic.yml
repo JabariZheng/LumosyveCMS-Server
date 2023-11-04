@@ -9,7 +9,7 @@ app:
 # 数据库配置
 db:
   mysql:
-    host: '127.0.0.1'
+    host: '192.168.1.35'
     username: 'root'
     password: '4zbndsfh'
     database: 'backend_node'
@@ -25,7 +25,7 @@ db:
 
 # redis 配置
 redis:
-  host: '127.0.0.1'
+  host: '192.168.1.35'
   port: 6379
   db: 0
   password: '4zbndsfh'
