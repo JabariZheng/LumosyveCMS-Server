@@ -40,7 +40,7 @@ export class DictService {
     const result = await this.findOne({ name: createDictDto.name });
     if (
       Object.keys(instanceToPlain(result)).length > 0 &&
-      instanceToPlain(result).deleted === '0'
+      instanceToPlain(result).deleted === 0
     ) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
@@ -82,12 +82,12 @@ export class DictService {
     result.deletedTime = new Date();
     // 字典数据删除
     let dictDataResult = await this.dictDataRepository.find({
-      where: { dict_type: result.type },
+      where: { dictType: result.type },
     });
     dictDataResult = instanceToPlain(dictDataResult) as DictDatum[];
     dictDataResult = dictDataResult.map((item: DictDatum) => {
-      item.deleted = '1';
-      item.deleted_time = new Date();
+      item.deleted = 1;
+      item.deletedTime = new Date();
       return item;
     });
     await this.dictRepository.save(result);
@@ -142,7 +142,6 @@ export class DictService {
       name: params.name,
       type: params.type,
     };
-    console.log('where', where);
 
     const result: [Dict[], number] = await this.queryCount({
       where,

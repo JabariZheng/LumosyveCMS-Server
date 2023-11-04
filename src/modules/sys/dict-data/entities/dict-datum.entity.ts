@@ -21,17 +21,17 @@ export class DictDatum {
   @Column({ comment: '字典键值' })
   value: string;
 
-  @Column({ comment: '字典类型' })
-  dict_type: string;
+  @Column({ name: 'dict_type', comment: '字典类型' })
+  dictType: string;
 
   @Column({ comment: '状态（0正常 1停用）' })
-  status: string;
+  status: number;
 
-  @Column({ comment: '颜色类型' })
-  color_type: string;
+  @Column({ name: 'color_type', comment: '颜色类型' })
+  colorType: string;
 
-  @Column({ comment: 'css 样式' })
-  css_class: string;
+  @Column({ name: 'css_class', comment: 'css 样式' })
+  cssClass: string;
 
   @Column({ comment: '备注' })
   remark: string;
@@ -39,21 +39,21 @@ export class DictDatum {
   @Column({ comment: '创建者' })
   creator: string;
 
-  @Column({ comment: '创建时间' })
-  @Transform(({ value }) => formatDate(value))
-  create_time: Date;
+  @Column({ name: 'create_time', comment: '创建时间' })
+  @Transform(({ value }) => value && formatDate(value))
+  createTime: Date;
 
   @Column({ comment: '更新者' })
   updater: string;
 
-  @Column({ comment: '更新时间' })
-  @Transform(({ value }) => formatDate(value))
-  update_time: Date;
+  @Column({ name: 'update_time', comment: '更新时间' })
+  @Transform(({ value }) => value && formatDate(value))
+  updateTime: Date;
 
   @Column({ comment: '是否删除' })
-  deleted: string;
+  deleted: number;
 
-  @Column({ comment: '删除时间' })
-  @Transform(({ value }) => formatDate(value))
-  deleted_time: Date;
+  @Column({ name: 'deleted_time', comment: '删除时间' })
+  @Transform(({ value }) => value && formatDate(value))
+  deletedTime: Date;
 }

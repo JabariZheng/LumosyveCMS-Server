@@ -20,6 +20,7 @@ import { UpdateDictDatumDto } from './dto/update-dict-datum.dto';
 import { ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { ActionByIdDot } from '../dict/dto/index.dto';
 import { GetPageDto, ListByType } from './dto/index.dto';
+import { FormatDtoEmpty } from 'src/common/decorators/format-dto.decorator';
 
 @ApiTags('字典数据管理')
 @Controller('/sys/dict-data')
@@ -52,7 +53,7 @@ export class DictDataController {
 
   @Get('page')
   @ApiOperation({ summary: '分页' })
-  getPage(@Query() page: GetPageDto) {
+  getPage(@FormatDtoEmpty() page: GetPageDto) {
     return this.dictDataService.getPage(page);
   }
 

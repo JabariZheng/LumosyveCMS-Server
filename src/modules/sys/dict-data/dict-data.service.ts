@@ -45,26 +45,26 @@ export class DictDataService {
     }
     // 查询是否存在dict-type
     const getDictTypeResult = await this.dictService.findOne({
-      type: createDictDatumDto.dict_type,
+      type: createDictDatumDto.dictType,
     });
     if (Object.keys(instanceToPlain(getDictTypeResult)).length === 0) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
-        `不存在字典类型${createDictDatumDto.dict_type}`,
+        `不存在字典类型${createDictDatumDto.dictType}`,
       );
     }
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     const newData: DictDatum = {
-      status: '0',
+      status: 0,
       ...createDictDatumDto,
       id: snowflakeID.NextId() as number,
-      deleted: '0',
+      deleted: 0,
       creator: JSON.parse(currentUser).username,
-      create_time: new Date(),
-      update_time: new Date(),
+      createTime: new Date(),
+      updateTime: new Date(),
       updater: JSON.parse(currentUser).username,
-      deleted_time: undefined,
+      deletedTime: undefined,
     };
     console.log('newData', newData);
     await this.dictDataRepository.save(newData);
@@ -83,8 +83,8 @@ export class DictDataService {
     }
     let result = await this.findOne({ id: +id });
     result = instanceToPlain(result) as DictDatum;
-    result.deleted = '1';
-    result.deleted_time = new Date();
+    result.deleted = 1;
+    result.deletedTime = new Date();
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     result.updater = JSON.parse(currentUser).username;
@@ -128,22 +128,22 @@ export class DictDataService {
   async getPage(dto: GetPageDto): Promise<ResultData> {
     const params: GetPageDto = {
       ...dto,
+      status: dto.status || 0,
       pageNo: dto.pageNo ? +dto.pageNo : 1,
       pageSize: dto.pageSize ? +dto.pageSize : 15,
     };
     const where = {
-      deleted: params.status === '2' ? '1' : '0',
-      status: params.status === '2' ? undefined : params.status,
+      deleted: +params.status === 2 ? 1 : 0,
+      status: +params.status === 2 ? undefined : params.status,
       name: params.name,
-      dict_type: params.type,
+      dictType: params.type,
     };
     const result: [DictDatum[], number] = await this.queryCount({
       where,
-      order: { update_time: 'DESC' },
+      order: { updateTime: 'DESC' },
       skip: (params.pageNo - 1) * params.pageSize,
       take: params.pageSize,
     });
-    console.log('instanceToPlain(result[0])', instanceToPlain(result[0]));
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
@@ -167,7 +167,7 @@ export class DictDataService {
 
   async getListByType(type: string): Promise<ResultData> {
     const result: [DictDatum[], number] = await this.queryCount({
-      where: { status: 0, deleted: 0, dict_type: type },
+      where: { status: 0, deleted: 0, dictType: type },
     });
     // return ResultData.ok({
     //   list: instanceToPlain(result[0]),
@@ -196,7 +196,7 @@ export class DictDataService {
 
   public async queryCount(options: any): Promise<[DictDatum[], number]> {
     const repositoryOptions: FindManyOptions<DictDatum> = {
-      order: { update_time: 'DESC' },
+      order: { updateTime: 'DESC' },
       ...options,
     };
     const result: [DictDatum[], number] =

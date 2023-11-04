@@ -20,23 +20,23 @@ export class CreateDictDatumDto {
   @ApiProperty({ description: '字典类型', type: 'string', required: true })
   @IsString()
   @IsNotEmpty({ message: '请输入字典类型' })
-  dict_type: string;
+  dictType: string;
 
   @ApiProperty({
     description: '状态（0正常 1停用）',
     type: 'number',
     required: true,
   })
-  status: string; /* 状态（0正常 1停用） */
+  status: number; /* 状态（0正常 1停用） */
 
   @ApiProperty({ description: '字典排序' })
   sort: number;
 
   @ApiProperty({ description: '颜色类型', type: 'string' })
-  color_type: string;
+  colorType: string;
 
   @ApiProperty({ description: 'css 样式', type: 'string' })
-  css_class: string;
+  cssClass: string;
 
   @ApiProperty({ description: '备注', type: 'string' })
   remark: string;
