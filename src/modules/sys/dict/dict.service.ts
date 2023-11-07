@@ -50,7 +50,7 @@ export class DictService {
 
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
-    const newData: Dict = {
+    const newData = {
       status: 0,
       ...createDictDto,
       id: snowflakeID.NextId() as number,
@@ -95,7 +95,6 @@ export class DictService {
     return ResultData.ok(result, '操作成功');
   }
 
-
   /**
    * 更新
    */
@@ -130,18 +129,19 @@ export class DictService {
    * 分页
    */
   public async getPage(dto: GetPageDto): Promise<ResultData> {
+    console.log('dto', dto);
     const params: GetPageDto = {
       ...dto,
-      status: dto.status || 0,
-      pageNo: dto.pageNo ? +dto.pageNo : 1,
-      pageSize: dto.pageSize ? +dto.pageSize : 15,
+      pageNo: dto.pageNo ? dto.pageNo : 1,
+      pageSize: dto.pageSize ? dto.pageSize : 15,
     };
     const where = {
-      deleted: +params.status === 2 ? 1 : 0,
-      status: +params.status === 2 ? undefined : params.status,
+      deleted: 0,
+      status: params.status && +params.status,
       name: params.name,
       type: params.type,
     };
+    console.log('where', where);
 
     const result: [Dict[], number] = await this.queryCount({
       where,
@@ -149,6 +149,7 @@ export class DictService {
       skip: (params.pageNo - 1) * params.pageSize,
       take: params.pageSize,
     });
+    console.log('result', result);
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
@@ -178,7 +179,6 @@ export class DictService {
     return ResultData.ok(result ? instanceToPlain(result) : {});
   }
 
-
   findAll() {
     return `This action returns all dict`;
   }
@@ -195,7 +195,7 @@ export class DictService {
 
   private async queryCount(options: any): Promise<[Dict[], number]> {
     const repositoryOptions: FindManyOptions<Dict> = {
-      order: { update_time: 'DESC' },
+      order: { updateTime: 'DESC' },
       ...options,
     };
     const result: [Dict[], number] = await this.dictRepository.findAndCount(

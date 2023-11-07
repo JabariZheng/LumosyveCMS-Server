@@ -5,7 +5,7 @@
  */
 import { Transform } from 'class-transformer';
 import { formatDate } from 'src/utils';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('sys_dict_type')
 export class Dict {
@@ -19,10 +19,15 @@ export class Dict {
   type: string;
 
   @Column({ comment: '状态（0正常 1停用）' })
+  @Transform(({ value }) => value.toString())
   status: number;
 
   @Column({ comment: '备注' })
   remark: string;
+
+  @Column({ name: 'is_sys', comment: '备注' })
+  @Transform(({ value }) => value.toString())
+  isSys: number;
 
   @Column({ comment: '创建者' })
   creator: string;
