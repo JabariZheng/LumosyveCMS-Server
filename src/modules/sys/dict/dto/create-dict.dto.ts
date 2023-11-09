@@ -18,7 +18,7 @@ export class CreateDictDto {
   type: string;
 
   @ApiProperty({ description: '状态（0正常 1停用）', type: '[string,number]' })
-  @IsNotEmpty({ message: '请输入是否系统默认' })
+  @IsNotEmpty({ message: '请输入状态' })
   status: string | number | any;
 
   @ApiProperty({ description: '系统默认（0是 1否）', type: '[string, number]' })

@@ -20,10 +20,10 @@ export class GetPageDto extends QueryPageDto {
 }
 
 export class ActionByIdDot {
-  @IsString()
+  // @IsString()
   @ApiProperty({ description: 'id' })
   @IsNotEmpty({ message: '请检查Id' })
-  id: string;
+  id: string | number | any;
 }
 
 export class ListByType {

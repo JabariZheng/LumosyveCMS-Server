@@ -4,7 +4,7 @@
  * @Description: dto
  */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 import { QueryPageDto } from 'src/common/dto/common.dto';
 
 export class GetPageDto extends QueryPageDto {

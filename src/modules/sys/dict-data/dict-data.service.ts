@@ -3,7 +3,7 @@
  * @Date: 2023-09-17 23:34:13
  * @Description: dictData.service
  */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateDictDatumDto } from './dto/create-dict-datum.dto';
 import { UpdateDictDatumDto } from './dto/update-dict-datum.dto';
 import { GetPageDto } from './dto/index.dto';
@@ -26,13 +26,17 @@ export class DictDataService {
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
     private readonly cacheService: CacheService,
+    @Inject(forwardRef(() => DictService))
     private readonly dictService: DictService,
   ) {}
 
   /**
    * 新增
    */
-  async add(createDictDatumDto: CreateDictDatumDto, authorization: string) {
+  public async add(
+    createDictDatumDto: CreateDictDatumDto,
+    authorization: string,
+  ) {
     const result = await this.findOne({ label: createDictDatumDto.label });
     if (Object.keys(instanceToPlain(result)).length > 0) {
       // 是否同名并已删除
@@ -66,7 +70,6 @@ export class DictDataService {
       updater: JSON.parse(currentUser).username,
       deletedTime: undefined,
     };
-    console.log('newData', newData);
     await this.dictDataRepository.save(newData);
     return ResultData.ok(newData, '操作成功');
   }
@@ -74,7 +77,7 @@ export class DictDataService {
   /**
    * 删除
    */
-  async remove(id: number, authorization: string) {
+  public async remove(id: number, authorization: string) {
     if (!id) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
@@ -88,6 +91,31 @@ export class DictDataService {
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     result.updater = JSON.parse(currentUser).username;
+    await this.dictDataRepository.save(result);
+    return ResultData.ok(result, '操作成功');
+  }
+
+  /**
+   * 删除
+   */
+  public async removeByDictType(dictType: string, authorization: string) {
+    if (!dictType) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        '请检查dictType',
+      );
+    }
+    const auUserId = this.authService.validToken(authorization);
+    const currentUser = await this.cacheService.get(auUserId);
+    let result = await this.findOne({ dictType: dictType });
+    result = instanceToPlain(result) as DictDatum;
+    result = {
+      ...result,
+      deleted: 1,
+      deletedTime: new Date(),
+      updateTime: new Date(),
+      updater: JSON.parse(currentUser).username,
+    };
     await this.dictDataRepository.save(result);
     return ResultData.ok(result, '操作成功');
   }
@@ -128,13 +156,12 @@ export class DictDataService {
   async getPage(dto: GetPageDto): Promise<ResultData> {
     const params: GetPageDto = {
       ...dto,
-      status: dto.status || 0,
       pageNo: dto.pageNo ? +dto.pageNo : 1,
       pageSize: dto.pageSize ? +dto.pageSize : 15,
     };
     const where = {
-      deleted: +params.status === 2 ? 1 : 0,
-      status: +params.status === 2 ? undefined : params.status,
+      deleted: 0,
+      status: params.status && +params.status,
       name: params.name,
       dictType: params.type,
     };

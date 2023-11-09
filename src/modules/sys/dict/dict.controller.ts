@@ -9,7 +9,6 @@ import {
   Post,
   Body,
   Patch,
-  Param,
   Delete,
   Query,
   Headers,
@@ -34,9 +33,8 @@ export class DictController {
 
   @Delete('delete')
   @ApiOperation({ summary: '删除' })
-  remove(@Body() query: ActionByIdDot) {
-    console.log('query', query, query.id);
-    return this.dictService.remove(+query.id);
+  remove(@Body() query: ActionByIdDot, @Headers() headers: any) {
+    return this.dictService.remove(+query.id, headers.authorization);
   }
 
   @Patch('update')

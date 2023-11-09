@@ -27,17 +27,20 @@ export class DictDatum {
   @Column({ comment: '状态（0正常 1停用）' })
   status: number;
 
-  @Column({ name: 'color_type', comment: '颜色类型' })
-  colorType: string;
-
-  @Column({ name: 'css_class', comment: 'css 样式' })
+  @Column({ name: 'css_class', comment: 'css 类名' })
   cssClass: string;
+
+  @Column({ name: 'css_style', comment: 'css 样式' })
+  cssStyle: string;
 
   @Column({ comment: '备注' })
   remark: string;
 
   @Column({ comment: '创建者' })
   creator: string;
+
+  @Column({ name: 'is_sys', comment: '默认内置' })
+  isSys: number;
 
   @Column({ name: 'create_time', comment: '创建时间' })
   @Transform(({ value }) => value && formatDate(value))
@@ -55,5 +58,5 @@ export class DictDatum {
 
   @Column({ name: 'deleted_time', comment: '删除时间' })
   @Transform(({ value }) => value && formatDate(value))
-  deletedTime: Date;
+  deletedTime: Date | undefined;
 }

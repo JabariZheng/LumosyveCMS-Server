@@ -17,9 +17,8 @@ import {
 import { DictDataService } from './dict-data.service';
 import { CreateDictDatumDto } from './dto/create-dict-datum.dto';
 import { UpdateDictDatumDto } from './dto/update-dict-datum.dto';
-import { ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
-import { ActionByIdDot } from '../dict/dto/index.dto';
-import { GetPageDto, ListByType } from './dto/index.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ActionByIdDot, GetPageDto, ListByType } from './dto/index.dto';
 import { FormatDtoEmpty } from 'src/common/decorators/format-dto.decorator';
 
 @ApiTags('字典数据管理')
@@ -35,7 +34,7 @@ export class DictDataController {
 
   @Delete('delete')
   @ApiOperation({ summary: '删除' })
-  remove(@Query() query: ActionByIdDot, @Headers() headers: any) {
+  remove(@Body() query: ActionByIdDot, @Headers() headers: any) {
     return this.dictDataService.remove(+query.id, headers.authorization);
   }
 
