@@ -111,16 +111,18 @@ export class DictDataService {
     }
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
-    let result = await this.findOne({ dictType: dictType });
-    result = instanceToPlain(result) as DictDatum;
-    result = {
-      ...result,
-      deleted: 1,
-      deletedTime: new Date(),
-      updateTime: new Date(),
-      updater: JSON.parse(currentUser).username,
-    };
-    await this.dictDataRepository.save(result);
+    const result = await this.queryCount({ dictType: dictType });
+    const _removeList = instanceToPlain(result[0]).map((item: DictDatum) => {
+      item = {
+        ...item,
+        deleted: 1,
+        deletedTime: new Date(),
+        updateTime: new Date(),
+        updater: JSON.parse(currentUser).username,
+      };
+      return item;
+    });
+    await this.dictDataRepository.save(_removeList);
     return ResultData.ok(result, '操作成功');
   }
 
