@@ -37,15 +37,19 @@ export class DictDataService {
     createDictDatumDto: CreateDictDatumDto,
     authorization: string,
   ) {
-    const result = await this.findOne({ label: createDictDatumDto.label });
-    if (Object.keys(instanceToPlain(result)).length > 0) {
-      // 是否同名并已删除
-      if (instanceToPlain(result).deleted === '0') {
-        return ResultData.fail(
-          this.configService.get('errorCode.valid'),
-          `已存在${createDictDatumDto.label}`,
-        );
-      }
+    const getFind = await this.findOne({
+      label: createDictDatumDto.label,
+      value: createDictDatumDto.value,
+    });
+    // 需要label、value同时唯一并且排除已删除状态的数据
+    if (
+      Object.keys(instanceToPlain(getFind)).length > 0 &&
+      instanceToPlain(getFind).deleted === '0'
+    ) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `已存在${createDictDatumDto.label}`,
+      );
     }
     // 查询是否存在dict-type
     const getDictTypeResult = await this.dictService.findOne({

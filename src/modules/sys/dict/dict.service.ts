@@ -37,17 +37,20 @@ export class DictService {
     createDictDto: CreateDictDto,
     authorization: string,
   ): Promise<ResultData> {
-    const result = await this.findOne({ name: createDictDto.name });
+    const getFind = await this.findOne({
+      name: createDictDto.isSys,
+      type: createDictDto.type,
+    });
+    // 需要name、type同时唯一并且排除已删除状态的数据
     if (
-      Object.keys(instanceToPlain(result)).length > 0 &&
-      instanceToPlain(result).deleted === 0
+      Object.keys(instanceToPlain(getFind)).length > 0 &&
+      instanceToPlain(getFind).deleted === 0
     ) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
         `已存在${createDictDto.name}`,
       );
     }
-
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     const newData = {
@@ -147,7 +150,6 @@ export class DictService {
       skip: (params.pageNo - 1) * params.pageSize,
       take: params.pageSize,
     });
-    console.log('result', result);
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
