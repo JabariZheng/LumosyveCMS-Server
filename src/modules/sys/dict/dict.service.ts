@@ -9,7 +9,7 @@ import { UpdateDictDto } from './dto/update-dict.dto';
 import { GetPageDto } from './dto/index.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dict } from './entities/dict.entity';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, Like, Repository } from 'typeorm';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ResultData } from 'src/utils/result';
 import { ConfigService } from '@nestjs/config';
@@ -38,7 +38,7 @@ export class DictService {
     authorization: string,
   ): Promise<ResultData> {
     const getFind = await this.findOne({
-      name: createDictDto.isSys,
+      name: createDictDto.name,
       type: createDictDto.type,
     });
     // 需要name、type同时唯一并且排除已删除状态的数据
@@ -93,6 +93,7 @@ export class DictService {
     };
     await this.dictRepository.save(result);
     // 字典数据删除
+    console.log('result.type', result.type);
     await this.dictDataService.removeByDictType(result.type, authorization);
     return ResultData.ok(result, '操作成功');
   }
@@ -139,8 +140,8 @@ export class DictService {
     const where = {
       deleted: 0,
       status: params.status && +params.status,
-      name: params.name,
-      type: params.type,
+      name: params.name && Like(`%${params.name}%`),
+      type: params.type && Like(`%${params.type}%`),
     };
     console.log('where', where);
 

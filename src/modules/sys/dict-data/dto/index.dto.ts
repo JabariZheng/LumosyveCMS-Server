@@ -12,9 +12,11 @@ export class GetPageDto extends QueryPageDto {
   @IsNotEmpty({ message: '请检查字典类型' })
   type: string;
   @ApiProperty({ description: '字典名称', type: String, required: false })
-  name: string;
+  label: string;
   @ApiProperty({ description: '字典键值', type: String, required: false })
   value: string;
+  @ApiProperty({ description: '系统内置', type: Number, required: false })
+  isSys: number;
   @ApiProperty({ description: '状态', type: Number, required: false })
   status: number;
 }

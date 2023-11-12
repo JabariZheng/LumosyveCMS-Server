@@ -11,7 +11,7 @@ import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DictDatum } from './entities/dict-datum.entity';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, Like, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
@@ -44,7 +44,7 @@ export class DictDataService {
     // 需要label、value同时唯一并且排除已删除状态的数据
     if (
       Object.keys(instanceToPlain(getFind)).length > 0 &&
-      instanceToPlain(getFind).deleted === '0'
+      instanceToPlain(getFind).deleted === 0
     ) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
@@ -111,7 +111,9 @@ export class DictDataService {
     }
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
-    const result = await this.queryCount({ dictType: dictType });
+    const result = await this.queryCount({
+      where: { dictType: dictType },
+    });
     const _removeList = instanceToPlain(result[0]).map((item: DictDatum) => {
       item = {
         ...item,
@@ -168,9 +170,12 @@ export class DictDataService {
     const where = {
       deleted: 0,
       status: params.status && +params.status,
-      name: params.name,
+      label: params.label && Like(`%${params.label}%`),
+      value: params.value && Like(`%${params.value}%`),
+      isSys: params.isSys && +params.isSys,
       dictType: params.type,
     };
+    console.log('where', where);
     const result: [DictDatum[], number] = await this.queryCount({
       where,
       order: { updateTime: 'DESC' },
@@ -224,6 +229,7 @@ export class DictDataService {
       { ...result },
       { enableImplicitConversion: true },
     );
+    console.log('result', result);
     return result;
   }
 
