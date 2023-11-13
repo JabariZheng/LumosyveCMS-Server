@@ -22,13 +22,13 @@ export class CreateDictDatumDto {
   @IsNotEmpty({ message: '请输入字典类型' })
   dictType: string;
 
-  @ApiProperty({
-    description: '状态（0正常 1停用）',
-    type: 'number',
-    required: true,
-  })
-  @IsNotEmpty({ message: '请输入状态' })
-  status: string | number | any; /* 状态（0正常 1停用） */
+  // @ApiProperty({
+  //   description: '状态（0正常 1停用）',
+  //   type: 'number',
+  //   required: true,
+  // })
+  // @IsNotEmpty({ message: '请输入状态' })
+  // status: string | number | any; /* 状态（0正常 1停用） */
 
   @ApiProperty({ description: '字典排序' })
   sort: number;

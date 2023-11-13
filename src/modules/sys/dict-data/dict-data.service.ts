@@ -37,20 +37,34 @@ export class DictDataService {
     createDictDatumDto: CreateDictDatumDto,
     authorization: string,
   ) {
-    const getFind = await this.findOne({
-      label: createDictDatumDto.label,
-      value: createDictDatumDto.value,
-    });
     // 需要label、value同时唯一并且排除已删除状态的数据
+    const getFingLabel = await this.findOne({
+      label: createDictDatumDto.label,
+    });
+    const hasFindLabel = instanceToPlain(getFingLabel);
     if (
-      Object.keys(instanceToPlain(getFind)).length > 0 &&
-      instanceToPlain(getFind).deleted === 0
+      Object.keys(hasFindLabel).length > 0 &&
+      instanceToPlain(hasFindLabel).deleted === 0
     ) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
-        `已存在${createDictDatumDto.label}`,
+        `已存在标签${createDictDatumDto.label}`,
       );
     }
+    const getFindValue = await this.findOne({
+      value: createDictDatumDto.value,
+    });
+    const hasFindValue = instanceToPlain(getFindValue);
+    if (
+      Object.keys(hasFindValue).length > 0 &&
+      instanceToPlain(hasFindValue).deleted === 0
+    ) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `已存在键值${createDictDatumDto.value}`,
+      );
+    }
+
     // 查询是否存在dict-type
     const getDictTypeResult = await this.dictService.findOne({
       type: createDictDatumDto.dictType,
@@ -175,7 +189,6 @@ export class DictDataService {
       isSys: params.isSys && +params.isSys,
       dictType: params.type,
     };
-    console.log('where', where);
     const result: [DictDatum[], number] = await this.queryCount({
       where,
       order: { updateTime: 'DESC' },
@@ -229,7 +242,6 @@ export class DictDataService {
       { ...result },
       { enableImplicitConversion: true },
     );
-    console.log('result', result);
     return result;
   }
 

@@ -37,20 +37,34 @@ export class DictService {
     createDictDto: CreateDictDto,
     authorization: string,
   ): Promise<ResultData> {
-    const getFind = await this.findOne({
-      name: createDictDto.name,
-      type: createDictDto.type,
-    });
     // 需要name、type同时唯一并且排除已删除状态的数据
+    const getFingName = await this.findOne({
+      name: createDictDto.name,
+    });
+    const hasFindName = instanceToPlain(getFingName);
     if (
-      Object.keys(instanceToPlain(getFind)).length > 0 &&
-      instanceToPlain(getFind).deleted === 0
+      Object.keys(hasFindName).length > 0 &&
+      instanceToPlain(hasFindName).deleted === 0
     ) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
-        `已存在${createDictDto.name}`,
+        `已存在名称${createDictDto.name}`,
       );
     }
+    const getFindType = await this.findOne({
+      type: createDictDto.type,
+    });
+    const hasFindType = instanceToPlain(getFindType);
+    if (
+      Object.keys(hasFindType).length > 0 &&
+      instanceToPlain(hasFindType).deleted === 0
+    ) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `已存在类型${createDictDto.type}`,
+      );
+    }
+
     const auUserId = this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     const newData = {
@@ -93,7 +107,6 @@ export class DictService {
     };
     await this.dictRepository.save(result);
     // 字典数据删除
-    console.log('result.type', result.type);
     await this.dictDataService.removeByDictType(result.type, authorization);
     return ResultData.ok(result, '操作成功');
   }
@@ -143,8 +156,6 @@ export class DictService {
       name: params.name && Like(`%${params.name}%`),
       type: params.type && Like(`%${params.type}%`),
     };
-    console.log('where', where);
-
     const result: [Dict[], number] = await this.queryCount({
       where,
       order: { updateTime: 'DESC' },
