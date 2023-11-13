@@ -158,6 +158,20 @@ export class AuthService {
     if (!id) {
       throw new UnauthorizedException('登录已失效，请重新登录');
     }
-    return ResultData.ok(MenuJSON);
+
+    let count = 0;
+
+    const eachMenuJson = (data) => {
+      return data.map((item: any) => {
+        count++;
+        item.id = count;
+        if (item.children) {
+          item.children = eachMenuJson(item.children);
+        }
+        return item;
+      });
+    };
+    const menu = eachMenuJson(MenuJSON);
+    return ResultData.ok(menu);
   }
 }

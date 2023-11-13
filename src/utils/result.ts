@@ -5,11 +5,15 @@
  */
 import { ApiProperty } from '@nestjs/swagger';
 export class ResultData {
-  constructor(code = 200, msg?: string, data?: any) {
+  constructor(success: boolean, code = 200, msg?: string, data?: any) {
     this.code = code;
     this.msg = msg || 'ok';
     this.data = data || null;
+    this.success = success;
   }
+
+  @ApiProperty({ type: 'boolean', default: true })
+  success: boolean;
 
   @ApiProperty({ type: 'number', default: 200 })
   code: number;
@@ -20,10 +24,10 @@ export class ResultData {
   data?: any;
 
   static ok(data?: any, msg?: string): ResultData {
-    return new ResultData(200, msg, data);
+    return new ResultData(true, 200, msg, data);
   }
 
   static fail(code: number, msg?: string, data?: any): ResultData {
-    return new ResultData(code || 500, msg || 'fail', data);
+    return new ResultData(false, code || 500, msg || 'fail', data);
   }
 }

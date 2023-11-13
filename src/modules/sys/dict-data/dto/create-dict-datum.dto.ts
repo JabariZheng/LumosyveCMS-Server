@@ -5,10 +5,13 @@
  */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { formatValidationMessage } from 'src/utils/dto';
 
 export class CreateDictDatumDto {
   @ApiProperty({ description: '字典标签', type: 'string', required: true })
-  @IsString()
+  @IsString({
+    message: ({ property }) => formatValidationMessage(property, 'string'),
+  })
   @IsNotEmpty({ message: '请输入字典标签' })
   label: string;
 

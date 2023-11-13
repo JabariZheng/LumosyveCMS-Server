@@ -41,7 +41,6 @@ export class UserController {
   @Delete('delete')
   @ApiOperation({ summary: '删除' })
   remove(@Query() query: ActionByIdDot) {
-    console.log('query', query, query.id);
     return this.userService.remove(+query.id);
   }
 
