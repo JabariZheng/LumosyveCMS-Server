@@ -1,7 +1,7 @@
 export default [
   {
     path: '/system',
-    redirect: '/sys/office/index',
+    redirect: '/sys/tenant/list',
     name: '系统管理',
     component: 'LAYOUT',
     meta: {
@@ -106,7 +106,7 @@ export default [
   },
   {
     path: '/seller',
-    redirect: '/seller/order/index',
+    redirect: '/seller/app',
     name: '商家中心',
     component: 'LAYOUT',
     meta: {
