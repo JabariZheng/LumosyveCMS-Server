@@ -61,4 +61,10 @@ export class MenuController {
   getInfo(@Query() query: ActionByNumberIdDot) {
     return this.menuService.getInfo(query.id);
   }
+
+  @Get('init')
+  @ApiOperation({ summary: '初始化资源' })
+  initMenuResource(@Headers() headers: Record<string, string>) {
+    return this.menuService.initMenuRoute(headers.authorization);
+  }
 }

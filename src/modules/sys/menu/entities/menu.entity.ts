@@ -12,26 +12,32 @@ export class Menu {
   @PrimaryColumn({ comment: 'ID' })
   id: number;
 
-  @Column({ comment: '父级id' })
-  parent_id: number;
+  @Column({ name: 'parent_id', comment: '父级id' })
+  parentId: number;
 
   @Column({ comment: '名称' })
   name: string;
 
-  @Column({ comment: '路径' })
-  path: string;
+  @Column({ comment: '类型' })
+  type: number;
 
   @Column({ comment: '组件名称' })
   component: string;
 
+  @Column({ comment: 'Code' })
+  code: string;
+
+  @Column({ comment: '路径' })
+  path: string;
+
+  @Column({ name: 'redirect_path', comment: '重定向地址' })
+  redirectPath: string;
+
   @Column({ comment: 'Icon' })
   icon: string;
 
-  @Column({ comment: '类型' })
-  type: number;
-
-  @Column({ comment: 'Code' })
-  code: string;
+  @Column({ comment: '标题' })
+  title: string;
 
   @Column({ comment: '是否显示' })
   hidden: number;

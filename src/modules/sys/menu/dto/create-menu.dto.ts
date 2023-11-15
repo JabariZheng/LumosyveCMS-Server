@@ -10,7 +10,7 @@ export class CreateMenuDto {
   @ApiProperty({ description: '上级菜单', type: 'number', required: true })
   @IsNumber()
   @IsNotEmpty({ message: '请选择上级菜单' })
-  parent_id: number;
+  parentId: number;
 
   @ApiProperty({ description: '名称', type: 'string', required: true })
   @IsString()
@@ -19,12 +19,17 @@ export class CreateMenuDto {
 
   @ApiProperty({ description: '路径', type: 'string' })
   path: string;
+  @ApiProperty({ description: '重定向路径', type: 'string' })
+  redirectPath: string;
 
   @ApiProperty({ description: '组件名称', type: 'string' })
   component: string;
 
   @ApiProperty({ description: 'Icon', type: 'string' })
   icon: string;
+
+  @ApiProperty({ description: '标题', type: 'string' })
+  title: string;
 
   @ApiProperty({ description: '菜单类型', type: 'number', required: true })
   @IsNumber()

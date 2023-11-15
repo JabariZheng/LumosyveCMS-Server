@@ -17,6 +17,8 @@ import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { snowflakeID } from 'src/utils';
 
+import MenuJson from '../auth/json/menu';
+
 @Injectable()
 export class MenuService {
   constructor(
@@ -80,7 +82,7 @@ export class MenuService {
     result.deleted_time = new Date();
     // 菜单子集删除
     let resultChild = await this.menuRepository.find({
-      where: { parent_id: result.id },
+      where: { parentId: result.id },
     });
     resultChild = instanceToPlain(resultChild) as Menu[];
     resultChild = resultChild.map((item: Menu) => {
@@ -174,6 +176,58 @@ export class MenuService {
   public async getInfo(id: number): Promise<ResultData> {
     const result = await this.findOne({ id: +id });
     return ResultData.ok(result ? instanceToPlain(result) : {});
+  }
+
+  /**
+   * 初始化
+   * @param authorization token
+   */
+  public async initMenuRoute(authorization: string) {
+    const auUserId = this.authService.validToken(authorization);
+    const currentUser = await this.cacheService.get(auUserId);
+    let result: Menu[] = [];
+    let parent_id = 0;
+    let sortNum = 0;
+
+    const eachChild = (data) => {
+      return data.map(async (item: Menu | any) => {
+        sortNum++;
+        const newItem: Menu = {
+          id: snowflakeID.NextId() as number,
+          parentId: parent_id,
+          name: item.name,
+          title: item.meta.title,
+          type: item.type || 1,
+          path: item.path,
+          redirectPath: item.redirect,
+          component: item.component,
+          icon: item.meta.icon,
+          code: item.code,
+          hidden: +item.meta.hideMenu,
+          status: 0,
+          sort: sortNum,
+          remark: undefined,
+          creator: JSON.parse(currentUser).username,
+          create_time: new Date(),
+          updater: JSON.parse(currentUser).username,
+          update_time: new Date(),
+          deleted: undefined,
+          deleted_time: undefined,
+        };
+        result.push(newItem);
+        parent_id = newItem.id;
+        if (item.children) {
+          eachChild(item.children);
+        }
+      });
+    };
+    eachChild(MenuJson);
+    try {
+      await this.menuRepository.save(result);
+      return ResultData.ok(result);
+    } catch (error) {
+      console.log('error', error);
+    }
   }
 
   public async findOne(opt: any): Promise<Menu> {
