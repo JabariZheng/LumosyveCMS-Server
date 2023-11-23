@@ -62,6 +62,12 @@ export class MenuController {
     return this.menuService.getInfo(query.id);
   }
 
+  @Get('tree')
+  @ApiOperation({ summary: '获取树状结构' })
+  getTree() {
+    return this.menuService.getTree();
+  }
+
   @Get('init')
   @ApiOperation({ summary: '初始化资源' })
   initMenuResource(@Headers() headers: Record<string, string>) {

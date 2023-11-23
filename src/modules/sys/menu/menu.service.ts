@@ -15,7 +15,7 @@ import { CacheService } from 'src/modules/cache/cache.service';
 import { GetPageDto } from './dto/index.dto';
 import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { snowflakeID } from 'src/utils';
+import { arrayToNestedTree, snowflakeID } from 'src/utils';
 
 import MenuJson from '../auth/json/menu';
 
@@ -176,6 +176,30 @@ export class MenuService {
   public async getInfo(id: number): Promise<ResultData> {
     const result = await this.findOne({ id: +id });
     return ResultData.ok(result ? instanceToPlain(result) : {});
+  }
+
+  /**
+   * 获取树状结构数据
+   */
+  public async getTree() {
+    const where = {
+      deleted: 0,
+      status: 0,
+    };
+    const result: [Menu[], number] = await this.queryCount({
+      where,
+      order: { update_time: 'DESC' },
+    });
+    const resData = instanceToPlain(result[0]);
+    const data = arrayToNestedTree(resData);
+    return data;
+    // try {
+    //   console.log('data', data);
+    //   return ResultData.ok(data);
+    // } catch (error) {
+    //   console.log('error', error);
+    //   return ResultData.ok(resData);
+    // }
   }
 
   /**
