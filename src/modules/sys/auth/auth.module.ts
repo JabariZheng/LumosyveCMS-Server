@@ -3,14 +3,13 @@
  * @Date: 2023-08-07 15:13:08
  * @Description: 权限管理
  */
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Tenant } from '../tenant/entities/tenant.entity';
-import { User } from '../user/entities/user.entity';
+import { UserModule } from '../user/user.module';
+import { TenantModule } from '../tenant/tenant.module';
 
 const JwtModuleImport = JwtModule.registerAsync({
   imports: [ConfigModule],
@@ -23,11 +22,13 @@ const JwtModuleImport = JwtModule.registerAsync({
   }),
 });
 
-const TenantEntityFeatures = TypeOrmModule.forFeature([Tenant]);
-const UserEntityFeatures = TypeOrmModule.forFeature([User]);
-
 @Module({
-  imports: [JwtModuleImport, TenantEntityFeatures, UserEntityFeatures],
+  // imports: [JwtModuleImport, TenantEntityFeatures, UserEntityFeatures],
+  imports: [
+    JwtModuleImport,
+    forwardRef(() => TenantModule),
+    forwardRef(() => UserModule),
+  ],
   controllers: [AuthController],
   providers: [AuthService],
   exports: [AuthService],

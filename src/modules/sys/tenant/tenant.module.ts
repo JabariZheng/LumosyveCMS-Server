@@ -3,7 +3,7 @@
  * @Date: 2023-08-11 15:29:33
  * @Description: 租户
  */
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TenantService } from './tenant.service';
 import { TenantController } from './tenant.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,7 +12,7 @@ import { AuthModule } from '../auth/auth.module';
 
 const EntityFeatures = TypeOrmModule.forFeature([Tenant]);
 @Module({
-  imports: [EntityFeatures, AuthModule],
+  imports: [EntityFeatures, forwardRef(() => AuthModule)],
   controllers: [TenantController],
   providers: [TenantService],
   exports: [TenantService],

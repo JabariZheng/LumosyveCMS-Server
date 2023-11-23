@@ -3,7 +3,7 @@
  * @Date: 2023-08-11 15:29:33
  * @Description: 租户管理service
  */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,6 +23,7 @@ export class TenantService {
     @InjectRepository(Tenant)
     private readonly tenantRepository: Repository<Tenant>,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
     private readonly cacheService: CacheService,
   ) {}

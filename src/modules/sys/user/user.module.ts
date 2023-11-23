@@ -3,7 +3,7 @@
  * @Date: 2023-08-06 23:49:40
  * @Description: user.module
  */
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,7 +13,7 @@ import { AuthModule } from '../auth/auth.module';
 const EntityFeatures = TypeOrmModule.forFeature([User]);
 
 @Module({
-  imports: [EntityFeatures, AuthModule],
+  imports: [EntityFeatures, forwardRef(() => AuthModule)],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService],

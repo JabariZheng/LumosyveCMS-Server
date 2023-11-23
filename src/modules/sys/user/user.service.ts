@@ -3,7 +3,7 @@
  * @Date: 2023-08-06 23:49:40
  * @Description: user.service
  */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,6 +23,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
     private readonly cacheService: CacheService,
   ) {}

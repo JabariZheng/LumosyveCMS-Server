@@ -3,7 +3,12 @@
  * @Date: 2023-08-07 15:13:08
  * @Description: auth.service
  */
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  UnauthorizedException,
+  forwardRef,
+} from '@nestjs/common';
 // import { CreateAuthDto } from './dto/create-auth.dto';
 // import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LoginDto } from './dto/auth.dto';
@@ -13,20 +18,19 @@ import { ConfigService } from '@nestjs/config';
 import { CreateTokenDto } from 'src/common/dto/common.dto';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { instanceToPlain } from 'class-transformer';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Tenant } from '../tenant/entities/tenant.entity';
-import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 
 import MenuJSON from './json/menu';
+import { UserService } from '../user/user.service';
+import { TenantService } from '../tenant/tenant.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(Tenant)
-    private readonly tenantRepository: Repository<Tenant>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @Inject(forwardRef(() => TenantService))
+    private readonly tenantService: TenantService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly cacheService: CacheService,
@@ -36,7 +40,7 @@ export class AuthService {
    * 登录
    */
   public async login(loginParams: LoginDto) {
-    const getTenant = await this.tenantRepository.findOne({
+    const getTenant = await this.tenantService.findOne({
       where: { name: loginParams.tenant },
     });
     if (Object.keys(getTenant || {}).length === 0) {
@@ -45,7 +49,10 @@ export class AuthService {
         `租户${loginParams.tenant}不存在`,
       );
     }
-    const getUser = await this.userRepository.findOne({
+    // const getUser = await this.userRepository.findOne({
+    //   where: { username: loginParams.username },
+    // });
+    const getUser = await this.userService.findOne({
       where: { username: loginParams.username },
     });
     if (Object.keys(instanceToPlain(getUser || {})).length === 0) {
@@ -118,7 +125,10 @@ export class AuthService {
     let cacheData = await this.cacheService.get(id + '');
     // jwt验证已经登录，但是redis里没有了用户信息记录，则重新查询之后存起来
     if (!cacheData) {
-      const getUser = await this.userRepository.findOne({
+      // const getUser = await this.userRepository.findOne({
+      //   where: { id: +id },
+      // });
+      const getUser = await this.userService.findOne({
         where: { id: +id },
       });
       cacheData = JSON.stringify(instanceToPlain(getUser));
@@ -138,7 +148,10 @@ export class AuthService {
     let cacheData = await this.cacheService.get(id + '');
     // jwt验证已经登录，但是redis里没有了用户信息记录，则重新查询之后存起来
     if (!cacheData) {
-      const getUser = await this.userRepository.findOne({
+      // const getUser = await this.userRepository.findOne({
+      //   where: { id: +id },
+      // });
+      const getUser = await this.userService.findOne({
         where: { id: +id },
       });
       cacheData = JSON.stringify(instanceToPlain(getUser));
