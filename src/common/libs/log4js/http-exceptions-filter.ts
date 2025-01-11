@@ -35,7 +35,11 @@ export class HttpExceptionsFilter implements ExceptionFilter {
       }
       ##############################################################################################################
       `;
-    Logger.info(logFormat);
+    if (status >= 500) {
+      Logger.warning(logFormat);
+    } else {
+      Logger.fatal(logFormat);
+    }
     response.status(status).json({
       code: status,
       msg:

@@ -12,8 +12,8 @@ import { LoggerMiddleware } from './middleware/log.middleware';
 import { Logger } from './common/libs/log4js/log4js';
 import { HttpExceptionsFilter } from './common/libs/log4js/http-exceptions-filter';
 import { NotFoundFilter } from './common/libs/notFoundFilter';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+// import { readFileSync } from 'fs';
+// import { join } from 'path';
 
 async function bootstrap() {
   const Chalk = await import('chalk');

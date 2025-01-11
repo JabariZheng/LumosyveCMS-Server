@@ -4,15 +4,15 @@ app:
   prefix: '/admin-api'
   host: 'localhost'
   port: 7001
-  permission: true
+  permission: false
   staticPath: 'public/upload'
 # 数据库配置
 db:
   mysql:
-    host: '192.168.1.35'
+    host: '127.0.0.1'
     username: 'root'
     password: '4zbndsfh'
-    database: 'backend_node'
+    database: 'backend_nest'
     port: 3306
     charset: 'utf8mb4'
     logger: 'advanced-console'
@@ -25,7 +25,7 @@ db:
 
 # redis 配置
 redis:
-  host: '192.168.1.35'
+  host: '127.0.0.1'
   port: 6379
   db: 0
   password: '4zbndsfh'

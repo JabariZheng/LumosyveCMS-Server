@@ -23,7 +23,7 @@ export const formatDate = (
   fmt = 'YYYY-MM-DD HH:mm:ss',
   emptyString = '-',
 ) => {
-  if (!value) {
+  if (!value || value === '-') {
     return emptyString || '';
   }
   return moment(value).format(fmt);
@@ -35,7 +35,7 @@ export const formatDate = (
  * @param args any
  */
 export const log2term = (...args: any) => {
-  console.log(formatDate(+new Date()), args);
+  console.log(formatDate(moment()), args);
 };
 
 const options: any = {
@@ -49,7 +49,6 @@ export function arrayToNestedTree(items) {
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    const { id, parentId, name,  path, component} = item;
     const node = {
       id: item.id,
       parentId: item.parentId,
@@ -90,11 +89,24 @@ export function arrayToNestedTree(items) {
 }
 
 function getParentChain(result, parentId) {
-  let parentNodeChain = [];
+  const parentNodeChain = [];
   while (parentId !== null) {
     const parentNode = result[parentId];
     parentNodeChain.unshift(parentNode);
     parentId = parentNode.parentId;
   }
   return parentNodeChain;
+}
+
+/**
+ * 提取 modules 之后的路径
+ * @param path 路径
+ * @returns String
+ */
+export function extractPathAfterModules(path) {
+  const modulesIndex = path.indexOf('modules');
+  if (modulesIndex !== -1) {
+    return path.substring(modulesIndex);
+  }
+  return '找不到路径';
 }

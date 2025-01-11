@@ -164,7 +164,8 @@ Log4js.configure(log4jsConfig);
 
 // 实例化
 const logger = Log4js.getLogger();
-logger.level = LoggerLevel.TRACE;
+// logger.level = LoggerLevel.TRACE;
+logger.level = LoggerLevel.ALL;
 
 // 定义log类方法
 export class Logger {

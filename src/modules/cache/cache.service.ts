@@ -32,7 +32,11 @@ export class CacheService {
   async set(key: string, value: any, second?: number) {
     log2term('redis set key', key, 'value ', value);
     value = JSON.stringify(value);
-    return await this.redisClient.set(key, value, { EX: second });
+    let options = {};
+    if (second) {
+      options = { EX: second };
+    }
+    return await this.redisClient.set(key, value, options);
   }
   //删除值
   async del(key: string) {
