@@ -38,6 +38,7 @@ export class DictService {
   /**
    * 新增
    */
+  @CatchErrors()
   public async create(
     createDictDto: CreateDictDto,
     authorization: string,
@@ -98,6 +99,7 @@ export class DictService {
   /**
    * 删除
    */
+  @CatchErrors()
   public async remove(opt, authorization: string) {
     const { ids, status } = opt;
     if (!ids || ids.length === 0) {
@@ -206,6 +208,7 @@ export class DictService {
   /**
    * 详情
    */
+  @CatchErrors()
   public async getInfo(id: string): Promise<ResultData> {
     const result = await this.findOne({ id: +id });
     return ResultData.ok(result ? instanceToPlain(result) : {});
