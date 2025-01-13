@@ -4,23 +4,38 @@
  * @Description: dto
  */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 import { QueryPageDto } from 'src/common/dto/common.dto';
 
 export class GetPageDto extends QueryPageDto {
   @ApiProperty({ description: '字典名称', type: String, required: false })
-  name: string;
-  @ApiProperty({ description: '字典类型', type: String, required: false })
-  type: string;
+  @IsString()
+  dictName: string;
 
-  @ApiProperty({ description: '状态', type: Number, required: false })
-  status: number;
+  @ApiProperty({ description: '字典类型', type: String, required: false })
+  @IsString()
+  dictType: string;
+
+  @ApiProperty({ description: '状态', type: String, required: false })
+  @IsString()
+  status: string;
 }
 
 export class ActionByIdDot {
-  // @IsString()
-  // @IsNumber()
-  @ApiProperty({ description: 'id' })
+  @ApiProperty({ description: 'Id', type: 'String', required: true })
   @IsNotEmpty({ message: '请检查Id' })
-  id: string | number;
+  @IsString()
+  id: string;
+}
+export class DelActionByIdsDot {
+  @ApiProperty({ description: 'Id', type: 'Array', required: true })
+  @IsNotEmpty({ message: '请检查Id' })
+  @IsArray()
+  ids: string[];
+
+  @ApiProperty({
+    description: '状态（0正常 1删除 2停用）',
+    type: 'String',
+  })
+  status: string;
 }

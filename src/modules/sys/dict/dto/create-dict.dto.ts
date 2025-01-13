@@ -4,27 +4,27 @@
  * @Description: dto.create
  */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateDictDto {
   @ApiProperty({ description: '字典名称', type: 'string', required: true })
   @IsString()
   @IsNotEmpty({ message: '请输入字典名称' })
-  name: string;
+  dictName: string;
 
   @ApiProperty({ description: '字典类型', type: 'string', required: true })
   @IsString()
   @IsNotEmpty({ message: '请输入字典类型' })
-  type: string;
+  dictType: string;
 
-  // @ApiProperty({ description: '状态（0正常 1停用）', type: '[string,number]' })
-  // @IsNotEmpty({ message: '请输入状态' })
-  // status: string | number | any;
-
-  @ApiProperty({ description: '系统默认（0是 1否）', type: '[string, number]' })
+  @ApiProperty({ description: '系统默认（0是 1否）', type: 'number' })
   @IsNotEmpty({ message: '请输入是否系统默认' })
-  isSys: string | number | any;
+  isSys: number;
+
+  @ApiProperty({ description: '状态（0正常 1删除 2停用）', type: 'string' })
+  // @IsNotEmpty({ message: '请输入状态' })
+  status: string;
 
   @ApiProperty({ description: '备注', type: 'string' })
-  remark: string;
+  remarks: string;
 }

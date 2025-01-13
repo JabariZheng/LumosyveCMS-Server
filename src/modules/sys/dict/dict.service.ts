@@ -17,6 +17,11 @@ import { snowflakeID } from 'src/utils';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { DictDataService } from '../dict-data/dict-data.service';
+import { CatchErrors } from 'src/common/decorators/catch-error.decorator';
+import {
+  FormatDefaultPagination,
+  FormatEmptyParams,
+} from 'src/common/decorators/format-dto.decorator';
 
 @Injectable()
 export class DictService {
@@ -37,83 +42,99 @@ export class DictService {
     createDictDto: CreateDictDto,
     authorization: string,
   ): Promise<ResultData> {
-    // 需要name、type同时唯一并且排除已删除状态的数据
-    const getFingName = await this.findOne({
-      name: createDictDto.name,
-    });
-    const hasFindName = instanceToPlain(getFingName);
-    if (
-      Object.keys(hasFindName).length > 0 &&
-      instanceToPlain(hasFindName).deleted === 0
-    ) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `已存在名称${createDictDto.name}`,
-      );
-    }
-    const getFindType = await this.findOne({
-      type: createDictDto.type,
-    });
-    const hasFindType = instanceToPlain(getFindType);
-    if (
-      Object.keys(hasFindType).length > 0 &&
-      instanceToPlain(hasFindType).deleted === 0
-    ) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `已存在类型${createDictDto.type}`,
-      );
-    }
-
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+    // // 需要name、type同时唯一并且排除已删除状态的数据
+    // const getFingName = await this.findOne({
+    //   name: createDictDto.name,
+    // });
+    // const hasFindName = instanceToPlain(getFingName);
+    // if (
+    //   Object.keys(hasFindName).length > 0 &&
+    //   +instanceToPlain(hasFindName).status === 1
+    // ) {
+    //   return ResultData.fail(
+    //     this.configService.get('errorCode.valid'),
+    //     `已存在名称${createDictDto.name}`,
+    //   );
+    // }
+    // const getFindType = await this.findOne({
+    //   type: createDictDto.type,
+    // });
+    // const hasFindType = instanceToPlain(getFindType);
+    // if (
+    //   Object.keys(hasFindType).length > 0 &&
+    //   +instanceToPlain(hasFindType).status === 1
+    // ) {
+    //   return ResultData.fail(
+    //     this.configService.get('errorCode.valid'),
+    //     `已存在类型${createDictDto.type}`,
+    //   );
+    // }
+    // const auUserId = await this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData = {
-      status: 0,
       ...createDictDto,
-      id: snowflakeID.NextId() as number,
-      deleted: 0,
-      creator: JSON.parse(currentUser).username,
-      createTime: new Date(),
-      updateTime: new Date(),
-      updater: JSON.parse(currentUser).username,
-      deletedTime: undefined,
+      status: createDictDto.status || '0',
+      id: snowflakeID.NextId() + '',
+      createBy: 'system',
+      // createBy: JSON.parse(currentUser).username || 'system',
+      createDate: new Date(),
+      // updateBy: JSON.parse(currentUser).username || 'system',
+      updateBy: 'system',
+      updateDate: new Date(),
     };
-    await this.dictRepository.save(newData);
-    return ResultData.ok(newData, '操作成功');
+    try {
+      await this.dictRepository.save(newData);
+      return ResultData.ok(newData, '操作成功');
+    } catch (error) {
+      console.log('this.dictRepository.save error', error);
+      console.log('__filename', __filename);
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        '操作失败',
+      );
+    }
   }
 
   /**
    * 删除
    */
-  public async remove(id: number, authorization: string) {
-    if (!id) {
+  public async remove(opt, authorization: string) {
+    const { ids, status } = opt;
+    if (!ids || ids.length === 0) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
-        '请检查id',
+        '请检查ids',
       );
     }
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
+
+    await this.dictRepository
+      .createQueryBuilder()
+      .update(Dict)
+      .set({ status: status || '1' })
+      .whereInIds(ids)
+      .execute();
 
     // 字典类型删除
-    let result: Dict = await this.findOne({ id: +id });
-    result = instanceToPlain(result) as Dict;
-    result = {
-      ...result,
-      updateTime: new Date(),
-      updater: JSON.parse(currentUser).username,
-      deleted: 1,
-      deletedTime: new Date(),
-    };
-    await this.dictRepository.save(result);
+    // let result: Dict = await this.findOne({ id: +id });
+    // result = instanceToPlain(result) as Dict;
+    // result = {
+    //   ...result,
+    //   updateDate: new Date(),
+    //   updateBy: JSON.parse(currentUser).username,
+    // };
+    // await this.dictRepository.save(result);
     // 字典数据删除
-    await this.dictDataService.removeByDictType(result.type, authorization);
-    return ResultData.ok(result, '操作成功');
+    // await this.dictDataService.removeByDictType(result.type, authorization);
+    // return ResultData.ok(result, '操作成功');
+    return ResultData.ok({}, '操作成功');
   }
 
   /**
    * 更新
    */
+  @CatchErrors()
   public async update(updateDictDto: UpdateDictDto, authorization: string) {
     if (!updateDictDto.id) {
       return ResultData.fail(
@@ -128,54 +149,53 @@ export class DictService {
         `未查询到${updateDictDto.id}，请检查id`,
       );
     }
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData = {
-      ...instanceToPlain(result),
       ...updateDictDto,
-      id: +updateDictDto.id,
-      updateTime: new Date(),
-      updater: JSON.parse(currentUser).username,
+      updateDate: new Date(),
+      updateBy: 'system',
     };
-    await this.dictRepository.save(newData);
+    await this.dictRepository.update(updateDictDto.id, {
+      ...newData,
+    });
+    console.log('newData', newData);
     return ResultData.ok(newData, '操作成功');
   }
 
   /**
    * 分页
    */
+  @CatchErrors()
+  @FormatDefaultPagination()
+  @FormatEmptyParams()
   public async getPage(dto: GetPageDto): Promise<ResultData> {
-    const params: GetPageDto = {
-      ...dto,
-      pageNo: dto.pageNo ? dto.pageNo : 1,
-      pageSize: dto.pageSize ? dto.pageSize : 15,
-    };
     const where = {
-      deleted: 0,
-      status: params.status && +params.status,
-      name: params.name && Like(`%${params.name}%`),
-      type: params.type && Like(`%${params.type}%`),
+      status: dto.status,
+      dictName: dto.dictName && Like(`%${dto.dictName}%`),
+      dictType: dto.dictType && Like(`%${dto.dictType}%`),
     };
     const result: [Dict[], number] = await this.queryCount({
       where,
-      order: { updateTime: 'DESC' },
-      skip: (params.pageNo - 1) * params.pageSize,
-      take: params.pageSize,
+      order: { updateDate: 'DESC' },
+      skip: (dto.pageNo - 1) * dto.pageSize,
+      take: dto.pageSize,
     });
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
-      pageNo: params.pageNo,
-      pageSize: params.pageSize,
+      pageNo: dto.pageNo,
+      pageSize: dto.pageSize,
     });
   }
 
   /**
    * 列表
    */
+  @CatchErrors()
   public async getList(): Promise<ResultData> {
     const result: [Dict[], number] = await this.queryCount({
-      where: { status: 0, deleted: 0 },
+      where: { status: '0' },
     });
     return ResultData.ok({
       list: instanceToPlain(result[0]),
@@ -186,7 +206,7 @@ export class DictService {
   /**
    * 详情
    */
-  public async getInfo(id: number): Promise<ResultData> {
+  public async getInfo(id: string): Promise<ResultData> {
     const result = await this.findOne({ id: +id });
     return ResultData.ok(result ? instanceToPlain(result) : {});
   }
@@ -205,9 +225,9 @@ export class DictService {
     return result;
   }
 
-  private async queryCount(options: any): Promise<[Dict[], number]> {
+  public async queryCount(options: any): Promise<[Dict[], number]> {
     const repositoryOptions: FindManyOptions<Dict> = {
-      order: { updateTime: 'DESC' },
+      order: { updateDate: 'DESC' },
       ...options,
     };
     const result: [Dict[], number] = await this.dictRepository.findAndCount(

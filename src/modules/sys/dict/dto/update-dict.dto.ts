@@ -5,11 +5,11 @@
  */
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateDictDto } from './create-dict.dto';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateDictDto extends PartialType(CreateDictDto) {
   @ApiProperty({ description: 'id', required: true })
-  @IsNumber()
+  @IsString()
   @IsNotEmpty({ message: '请检查id' })
-  id: number;
+  id: string;
 }

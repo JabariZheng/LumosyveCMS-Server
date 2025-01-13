@@ -5,48 +5,45 @@
  */
 import { Transform } from 'class-transformer';
 import { formatDate } from 'src/utils';
-import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('sys_dict_type')
 export class Dict {
   @PrimaryColumn()
-  id: number;
+  id: string;
 
-  @Column({ comment: '字典名称' })
-  name: string;
+  @Column({ name: 'dict_name', comment: '字典名称' })
+  dictName: string;
 
-  @Column({ comment: '字典类型' })
-  type: string;
+  @Column({ name: 'dict_type', comment: '字典类型' })
+  dictType: string;
 
-  @Column({ comment: '状态（0正常 1停用）' })
-  @Transform(({ value }) => value.toString())
-  status: number;
-
-  @Column({ comment: '备注' })
-  remark: string;
-
-  @Column({ name: 'is_sys', comment: '备注' })
-  @Transform(({ value }) => value.toString())
+  @Column({ name: 'is_sys', comment: '是否系统字典' })
   isSys: number;
 
-  @Column({ comment: '创建者' })
-  creator: string;
+  @Column({ name: 'status', comment: '状态（0正常 1删除 2停用）' })
+  status: string;
 
-  @Column({ name: 'create_time', comment: '创建时间' })
+  @Column({ name: 'create_by', comment: '创建者' })
+  createBy: string;
+
+  @Column({ name: 'create_date', comment: '创建时间' })
   @Transform(({ value }) => value && formatDate(value))
-  createTime: Date;
+  createDate: Date;
 
-  @Column({ comment: '更新者' })
-  updater: string;
+  @Column({ name: 'update_by', comment: '更新者' })
+  updateBy: string;
 
-  @Column({ name: 'update_time', comment: '更新时间' })
+  @Column({ name: 'update_date', comment: '更新时间' })
   @Transform(({ value }) => value && formatDate(value))
-  updateTime: Date;
+  updateDate: Date;
 
-  @Column({ comment: '是否删除' })
-  deleted: number;
-
-  @Column({ name: 'deleted_time', comment: '删除时间' })
-  @Transform(({ value }) => value && formatDate(value))
-  deletedTime: Date;
+  @Column({ name: 'remarks', comment: '备注信息' })
+  remarks: string;
 }
