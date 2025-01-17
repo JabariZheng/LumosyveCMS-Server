@@ -8,18 +8,21 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
   Delete,
   Headers,
   Query,
+  Put,
 } from '@nestjs/common';
 import { DictDataService } from './dict-data.service';
 import { CreateDictDatumDto } from './dto/create-dict-datum.dto';
 import { UpdateDictDatumDto } from './dto/update-dict-datum.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ActionByIdDot, GetPageDto, ListByType } from './dto/index.dto';
-import { FormatDtoEmpty } from 'src/common/decorators/format-dto.decorator';
+import {
+  ActionByIdDot,
+  DelActionByIdsDot,
+  GetPageDto,
+  ListByType,
+} from './dto/index.dto';
 
 @ApiTags('字典数据管理')
 @Controller('/sys/dict-data')
@@ -34,11 +37,11 @@ export class DictDataController {
 
   @Delete('delete')
   @ApiOperation({ summary: '删除' })
-  remove(@Body() query: ActionByIdDot, @Headers() headers: any) {
-    return this.dictDataService.remove(+query.id, headers.authorization);
+  remove(@Body() query: DelActionByIdsDot, @Headers() headers: any) {
+    return this.dictDataService.remove(query, headers.authorization);
   }
 
-  @Patch('update')
+  @Put('update')
   @ApiOperation({ summary: '更新' })
   update(
     @Body() updateDictDatumDto: UpdateDictDatumDto,
@@ -52,7 +55,7 @@ export class DictDataController {
 
   @Get('page')
   @ApiOperation({ summary: '分页' })
-  getPage(@FormatDtoEmpty() page: GetPageDto) {
+  getPage(@Query() page: GetPageDto) {
     return this.dictDataService.getPage(page);
   }
 

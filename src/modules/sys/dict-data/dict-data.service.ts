@@ -6,7 +6,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateDictDatumDto } from './dto/create-dict-datum.dto';
 import { UpdateDictDatumDto } from './dto/update-dict-datum.dto';
-import { GetPageDto } from './dto/index.dto';
+import { DelActionByIdsDot, GetPageDto } from './dto/index.dto';
 import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,6 +17,12 @@ import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { snowflakeID } from 'src/utils';
 import { DictService } from '../dict/dict.service';
+import { CatchErrors } from 'src/common/decorators/catch-error.decorator';
+import {
+  FormatDefaultPagination,
+  FormatEmptyParams,
+} from 'src/common/decorators/format-dto.decorator';
+import * as moment from 'moment';
 
 @Injectable()
 export class DictDataService {
@@ -33,84 +39,115 @@ export class DictDataService {
   /**
    * 新增
    */
+  @CatchErrors()
   public async add(
     createDictDatumDto: CreateDictDatumDto,
     authorization: string,
   ) {
+    // TODO: 未完成
     // 需要label、value同时唯一并且排除已删除状态的数据
-    const getFingLabel = await this.findOne({
-      label: createDictDatumDto.label,
-    });
-    const hasFindLabel = instanceToPlain(getFingLabel);
-    if (
-      Object.keys(hasFindLabel).length > 0 &&
-      instanceToPlain(hasFindLabel).deleted === 0
-    ) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `已存在标签${createDictDatumDto.label}`,
-      );
-    }
-    const getFindValue = await this.findOne({
-      value: createDictDatumDto.value,
-    });
-    const hasFindValue = instanceToPlain(getFindValue);
-    if (
-      Object.keys(hasFindValue).length > 0 &&
-      instanceToPlain(hasFindValue).deleted === 0
-    ) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `已存在键值${createDictDatumDto.value}`,
-      );
-    }
+    // const getFingLabel = await this.findOne({
+    //   label: createDictDatumDto.dictLabel,
+    // });
+    // const hasFindLabel = instanceToPlain(getFingLabel);
+    // if (
+    //   Object.keys(hasFindLabel).length > 0 &&
+    //   instanceToPlain(hasFindLabel).deleted === 0
+    // ) {
+    //   return ResultData.fail(
+    //     this.configService.get('errorCode.valid'),
+    //     `已存在标签${createDictDatumDto.dictLabel}`,
+    //   );
+    // }
+    // const getFindValue = await this.findOne({
+    //   value: createDictDatumDto.dictValue,
+    // });
+    // const hasFindValue = instanceToPlain(getFindValue);
+    // if (
+    //   Object.keys(hasFindValue).length > 0 &&
+    //   instanceToPlain(hasFindValue).deleted === 0
+    // ) {
+    //   return ResultData.fail(
+    //     this.configService.get('errorCode.valid'),
+    //     `已存在键值${createDictDatumDto.dictValue}`,
+    //   );
+    // }
 
-    // 查询是否存在dict-type
-    const getDictTypeResult = await this.dictService.findOne({
-      type: createDictDatumDto.dictType,
-    });
-    if (Object.keys(instanceToPlain(getDictTypeResult)).length === 0) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `不存在字典类型${createDictDatumDto.dictType}`,
-      );
-    }
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+    // TODO: 未完成
+    // // 查询是否存在dict-type
+    // const getDictTypeResult = await this.dictService.findOne({
+    //   type: createDictDatumDto.dictType,
+    // });
+    // if (Object.keys(instanceToPlain(getDictTypeResult)).length === 0) {
+    //   return ResultData.fail(
+    //     this.configService.get('errorCode.valid'),
+    //     `不存在字典类型${createDictDatumDto.dictType}`,
+    //   );
+    // }
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData: DictDatum = {
-      status: 0,
       ...createDictDatumDto,
-      id: snowflakeID.NextId() as number,
-      deleted: 0,
-      creator: JSON.parse(currentUser).username,
-      createTime: new Date(),
-      updateTime: new Date(),
-      updater: JSON.parse(currentUser).username,
-      deletedTime: undefined,
+      status: createDictDatumDto.status || '0',
+      parentCode: '0',
+      id: snowflakeID.NextId() + '',
+      dictIcon: createDictDatumDto.dictIcon,
+      corpCode: 'linshuiyunxi',
+      corpName: '林水云夕',
+      createBy: 'system',
+      // createBy: JSON.parse(currentUser).username || 'system',
+      createDate: new Date(),
+      // updateBy: JSON.parse(currentUser).username || 'system',
+      updateBy: 'system',
+      updateDate: new Date(),
     };
     await this.dictDataRepository.save(newData);
-    return ResultData.ok(newData, '操作成功');
+    return ResultData.ok(
+      {
+        ...newData,
+        createDate: moment(newData.createDate).format('YYYY-MM-DD HH:mm:ss'),
+        updateDate: moment(newData.updateDate).format('YYYY-MM-DD HH:mm:ss'),
+      },
+      '操作成功',
+    );
   }
 
   /**
    * 删除
    */
-  public async remove(id: number, authorization: string) {
-    if (!id) {
+  @CatchErrors()
+  public async remove(opt: DelActionByIdsDot, authorization: string) {
+    const { ids, status } = opt;
+    if (!ids) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
-        '请检查id',
+        '请检查ids',
       );
     }
-    let result = await this.findOne({ id: +id });
-    result = instanceToPlain(result) as DictDatum;
-    result.deleted = 1;
-    result.deletedTime = new Date();
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
-    result.updater = JSON.parse(currentUser).username;
-    await this.dictDataRepository.save(result);
-    return ResultData.ok(result, '操作成功');
+    if (ids.length === 0) {
+      return ResultData.ok({}, '操作成功');
+    }
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
+
+    await this.dictDataRepository
+      .createQueryBuilder()
+      .update(DictDatum)
+      .set({
+        status: status || '1',
+        updateDate: new Date(),
+        updateBy: 'system',
+      })
+      .whereInIds(ids)
+      .execute();
+
+    // let result = await this.findOne({ id: +id });
+    // result = instanceToPlain(result) as DictDatum;
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
+    // result.updateBy = JSON.parse(currentUser).username;
+    // await this.dictDataRepository.save(result);
+    return ResultData.ok({}, '操作成功');
   }
 
   /**
@@ -124,17 +161,15 @@ export class DictDataService {
       );
     }
     const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+    const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const result = await this.queryCount({
       where: { dictType: dictType },
     });
     const _removeList = instanceToPlain(result[0]).map((item: DictDatum) => {
       item = {
         ...item,
-        deleted: 1,
-        deletedTime: new Date(),
-        updateTime: new Date(),
-        updater: JSON.parse(currentUser).username,
+        updateDate: new Date(),
+        updateBy: JSON.parse(currentUser).username,
       };
       return item;
     });
@@ -145,6 +180,7 @@ export class DictDataService {
   /**
    * 更新
    */
+  @CatchErrors()
   async update(updateDictDatumDto: UpdateDictDatumDto, authorization: string) {
     if (!updateDictDatumDto.id) {
       return ResultData.fail(
@@ -152,63 +188,67 @@ export class DictDataService {
         '请检查id',
       );
     }
-    const result = await this.findOne({ id: +updateDictDatumDto.id });
+    const result = await this.findOne({ id: updateDictDatumDto.id });
     if (!result) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
         `未查询到${updateDictDatumDto.id}，请检查id`,
       );
     }
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+    const resultPlain = instanceToPlain(result);
+    if (resultPlain.status !== '0') {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `该条数据为非可用状态`,
+      );
+    }
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData = {
-      ...instanceToPlain(result),
+      // ...instanceToPlain(result),
       ...updateDictDatumDto,
-      id: +updateDictDatumDto.id,
-      update_time: new Date(),
-      updater: JSON.parse(currentUser).username,
+      updateDate: new Date(),
+      updateBy: 'system',
     };
-    await this.dictDataRepository.save(newData);
+    await this.dictDataRepository.update(updateDictDatumDto.id, { ...newData });
     return ResultData.ok(newData, '操作成功');
   }
 
   /**
    * 分页
    */
-  async getPage(dto: GetPageDto): Promise<ResultData> {
-    const params: GetPageDto = {
-      ...dto,
-      pageNo: dto.pageNo ? +dto.pageNo : 1,
-      pageSize: dto.pageSize ? +dto.pageSize : 15,
-    };
+  @CatchErrors()
+  @FormatDefaultPagination()
+  @FormatEmptyParams()
+  public async getPage(dto: GetPageDto): Promise<ResultData> {
     const where = {
-      deleted: 0,
-      status: params.status && +params.status,
-      label: params.label && Like(`%${params.label}%`),
-      value: params.value && Like(`%${params.value}%`),
-      isSys: params.isSys && +params.isSys,
-      dictType: params.type,
+      status: dto.status,
+      dictLabel: dto.dictLabel && Like(`%${dto.dictLabel}%`),
+      dictValue: dto.dictValue && Like(`%${dto.dictValue}%`),
+      isSys: dto.isSys,
+      dictType: dto.dictType,
     };
     const result: [DictDatum[], number] = await this.queryCount({
       where,
-      order: { updateTime: 'DESC' },
-      skip: (params.pageNo - 1) * params.pageSize,
-      take: params.pageSize,
+      order: { updateDate: 'DESC' },
+      skip: (dto.pageNo - 1) * dto.pageSize,
+      take: dto.pageSize,
     });
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
-      pageNo: params.pageNo,
-      pageSize: params.pageSize,
+      pageNo: dto.pageNo,
+      pageSize: dto.pageSize,
     });
   }
 
   /**
    * 列表
    */
+  @CatchErrors()
   async getList(): Promise<ResultData> {
     const result: [DictDatum[], number] = await this.queryCount({
-      where: { status: 0, deleted: 0 },
+      where: { status: '0' },
     });
     return ResultData.ok({
       list: instanceToPlain(result[0]),
@@ -216,9 +256,13 @@ export class DictDataService {
     });
   }
 
+  @CatchErrors()
   async getListByType(type: string): Promise<ResultData> {
+    if (!type) {
+      return ResultData.ok([]);
+    }
     const result: [DictDatum[], number] = await this.queryCount({
-      where: { status: 0, deleted: 0, dictType: type },
+      where: { status: '0', dictType: type },
     });
     // return ResultData.ok({
     //   list: instanceToPlain(result[0]),
@@ -247,7 +291,7 @@ export class DictDataService {
 
   public async queryCount(options: any): Promise<[DictDatum[], number]> {
     const repositoryOptions: FindManyOptions<DictDatum> = {
-      order: { updateTime: 'DESC' },
+      order: { updateDate: 'DESC' },
       ...options,
     };
     const result: [DictDatum[], number] =

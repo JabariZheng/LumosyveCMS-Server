@@ -29,7 +29,6 @@ export class DictController {
   @Post('add')
   @ApiOperation({ summary: '新增' })
   add(@Body() createDictDto: CreateDictDto, @Headers() headers: any) {
-    console.log('headers.authorization', headers.authorization);
     return this.dictService.create(createDictDto, headers.authorization);
   }
 
@@ -47,7 +46,6 @@ export class DictController {
 
   @Get('page')
   @ApiOperation({ summary: '分页' })
-  // getPage(@FormatDtoEmpty() page: GetPageDto) {
   getPage(@Query() page: GetPageDto) {
     return this.dictService.getPage(page);
   }

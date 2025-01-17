@@ -6,7 +6,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateDictDto } from './dto/create-dict.dto';
 import { UpdateDictDto } from './dto/update-dict.dto';
-import { GetPageDto } from './dto/index.dto';
+import { DelActionByIdsDot, GetPageDto } from './dto/index.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dict } from './entities/dict.entity';
 import { FindManyOptions, Like, Repository } from 'typeorm';
@@ -22,6 +22,7 @@ import {
   FormatDefaultPagination,
   FormatEmptyParams,
 } from 'src/common/decorators/format-dto.decorator';
+import * as moment from 'moment';
 
 @Injectable()
 export class DictService {
@@ -83,24 +84,22 @@ export class DictService {
       updateBy: 'system',
       updateDate: new Date(),
     };
-    try {
-      await this.dictRepository.save(newData);
-      return ResultData.ok(newData, '操作成功');
-    } catch (error) {
-      console.log('this.dictRepository.save error', error);
-      console.log('__filename', __filename);
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        '操作失败',
-      );
-    }
+    await this.dictRepository.save(newData);
+    return ResultData.ok(
+      {
+        ...newData,
+        createDate: moment(newData.createDate).format('YYYY-MM-DD HH:mm:ss'),
+        updateDate: moment(newData.updateDate).format('YYYY-MM-DD HH:mm:ss'),
+      },
+      '操作成功',
+    );
   }
 
   /**
    * 删除
    */
   @CatchErrors()
-  public async remove(opt, authorization: string) {
+  public async remove(opt: DelActionByIdsDot, authorization: string) {
     const { ids, status } = opt;
     if (!ids || ids.length === 0) {
       return ResultData.fail(
@@ -114,7 +113,11 @@ export class DictService {
     await this.dictRepository
       .createQueryBuilder()
       .update(Dict)
-      .set({ status: status || '1' })
+      .set({
+        status: status || '1',
+        updateDate: new Date(),
+        updateBy: 'system',
+      })
       .whereInIds(ids)
       .execute();
 
@@ -144,11 +147,18 @@ export class DictService {
         '请检查id',
       );
     }
-    const result = await this.findOne({ id: +updateDictDto.id });
+    const result = await this.findOne({ id: updateDictDto.id });
     if (!result) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
         `未查询到${updateDictDto.id}，请检查id`,
+      );
+    }
+    const resultPlain = instanceToPlain(result);
+    if (resultPlain.status !== '0') {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `该条数据为非可用状态`,
       );
     }
     // const auUserId = this.authService.validToken(authorization);
@@ -161,7 +171,6 @@ export class DictService {
     await this.dictRepository.update(updateDictDto.id, {
       ...newData,
     });
-    console.log('newData', newData);
     return ResultData.ok(newData, '操作成功');
   }
 
