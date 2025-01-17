@@ -284,7 +284,7 @@ export default class SnowflakeID {
    * 生成ID
    * @returns 根据输出数值判断，小于number最大值时输出number类型，大于时输出bigint
    */
-  NextId() {
+  NextId(): number | bigint {
     if (this._IsOverCost) {
       const id = this.NextOverCostId();
       if (id >= 9007199254740992n) return id;
