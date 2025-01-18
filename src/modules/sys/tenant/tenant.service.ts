@@ -45,7 +45,7 @@ export class TenantService {
       }
     }
 
-    const auUserId = this.authService.validToken(authorization);
+    const auUserId = await this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
 
     // 拼装数据
@@ -98,7 +98,7 @@ export class TenantService {
         `未查询到${updateTenantDto.id}，请检查id`,
       );
     }
-    const auUserId = this.authService.validToken(authorization);
+    const auUserId = await this.authService.validToken(authorization);
     const currentUser = await this.cacheService.get(auUserId);
     const newData = {
       ...instanceToPlain(result),

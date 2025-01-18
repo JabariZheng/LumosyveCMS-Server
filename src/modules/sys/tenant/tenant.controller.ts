@@ -22,7 +22,7 @@ import { TenantPageDto } from './dto/common-tenant.dto';
 import { ResultData } from 'src/utils/result';
 import { ActionByIdDot } from './dto/index.dto';
 
-@ApiTags('租户管理')
+@ApiTags('🚫租户管理-废弃')
 @Controller('/sys/tenant')
 export class TenantController {
   constructor(private readonly tenantService: TenantService) {}
