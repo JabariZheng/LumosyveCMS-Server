@@ -27,7 +27,6 @@ export function UploadImg(fieldName = 'file', options?: MulterOptions) {
             file: Express.Multer.File,
             callback: (error: Error | null, acceptFile: boolean) => void,
           ) {
-            console.log('file', file);
             if (!file.mimetype.includes('image')) {
               callback(new MethodNotAllowedException('类型不支持'), false);
             } else {
@@ -43,7 +42,7 @@ export function UploadImgs(uploadFields?, options?: MulterOptions) {
   return applyDecorators(
     UseInterceptors(
       FileFieldsInterceptor(
-        uploadFields || [{ name: 'file' }],
+        uploadFields || [{ name: 'files' }],
         options || {
           limits: { fileSize: Math.pow(1024, 2) * 2 },
           fileFilter(
