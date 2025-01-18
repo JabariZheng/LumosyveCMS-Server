@@ -1,10 +1,10 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-01-11 20:20:15
- * @LastEditTime: 2025-01-19 01:23:45
+ * @LastEditTime: 2025-01-19 02:21:18
  * @Description: corp.service
  */
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateCorpDto } from './dto/create-corp.dto';
 import { UpdateCorpDto } from './dto/update-corp.dto';
 import { DelActionByIdsDot, GetPageDto } from './dto/index-corp.dto';
@@ -19,9 +19,9 @@ import { Corp } from './entities/corp.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { instanceToPlain } from 'class-transformer';
 import { CommonQueryRepository, snowflakeID } from 'src/utils';
-import { AuthService } from '../auth/auth.service';
 import * as moment from 'moment';
 import { ConfigService } from '@nestjs/config';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class CorpService {
@@ -30,6 +30,7 @@ export class CorpService {
     @InjectRepository(Corp)
     private readonly corpRepository: Repository<Corp>,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
   ) {
     this.queryRepository = new CommonQueryRepository(corpRepository);

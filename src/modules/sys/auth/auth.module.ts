@@ -9,7 +9,7 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from '../user/user.module';
-import { TenantModule } from '../tenant/tenant.module';
+import { CorpModule } from '../corp/corp.module';
 
 const JwtModuleImport = JwtModule.registerAsync({
   imports: [ConfigModule],
@@ -26,8 +26,8 @@ const JwtModuleImport = JwtModule.registerAsync({
   // imports: [JwtModuleImport, TenantEntityFeatures, UserEntityFeatures],
   imports: [
     JwtModuleImport,
-    forwardRef(() => TenantModule),
     forwardRef(() => UserModule),
+    forwardRef(() => CorpModule),
   ],
   controllers: [AuthController],
   providers: [AuthService],

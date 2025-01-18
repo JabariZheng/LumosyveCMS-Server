@@ -22,15 +22,15 @@ import { User } from '../user/entities/user.entity';
 
 import MenuJSON from './json/menu';
 import { UserService } from '../user/user.service';
-import { TenantService } from '../tenant/tenant.service';
+import { CorpService } from '../corp/corp.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(forwardRef(() => TenantService))
-    private readonly tenantService: TenantService,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    @Inject(forwardRef(() => CorpService))
+    private readonly corpService: CorpService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly cacheService: CacheService,
@@ -40,41 +40,44 @@ export class AuthService {
    * 登录
    */
   public async login(loginParams: LoginDto) {
-    const getTenant = await this.tenantService.findOne({
-      where: { name: loginParams.tenant },
-    });
-    if (Object.keys(getTenant || {}).length === 0) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `租户${loginParams.tenant}不存在`,
+    try {
+      // 查找租户
+      const getTenant = await this.corpService.getInfo(loginParams.tenant);
+      if (Object.keys(instanceToPlain(getTenant || {})).length === 0) {
+        return ResultData.fail(
+          this.configService.get('errorCode.valid'),
+          `租户${loginParams.tenant}不存在`,
+        );
+      }
+      // 查找用户
+      const getUser = await this.userService.findOne({
+        username: loginParams.username,
+      });
+      if (Object.keys(instanceToPlain(getUser || {})).length === 0) {
+        return ResultData.fail(
+          this.configService.get('errorCode.valid'),
+          `用户${loginParams.username}不存在`,
+        );
+      }
+      // 匹配密码
+      // if (getUser.password !== atob(loginParams.password)) {
+      if (getUser.password !== loginParams.password) {
+        return ResultData.fail(
+          this.configService.get('errorCode.valid'),
+          '账号或密码错误',
+        );
+      }
+      // 生成token
+      const data = this.genToken({ id: getUser.id + '' });
+      // 写入redis，过期时间暂时先不写，有jwt的过期时间校验，过期自动清除
+      await this.cacheService.set(
+        `user_${getUser.id}`,
+        JSON.stringify(instanceToPlain(getUser)),
       );
+      return ResultData.ok(data);
+    } catch (error) {
+      console.log('error', error);
     }
-    // const getUser = await this.userRepository.findOne({
-    //   where: { username: loginParams.username },
-    // });
-    const getUser = await this.userService.findOne({
-      where: { username: loginParams.username },
-    });
-    if (Object.keys(instanceToPlain(getUser || {})).length === 0) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `用户${loginParams.username}不存在`,
-      );
-    }
-    if (getUser.password !== atob(loginParams.password)) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        '账号或密码错误',
-      );
-    }
-    // 生成token
-    const data = this.genToken({ id: getUser.id + '' });
-    // 写入redis，过期时间暂时先不写，有jwt的过期时间校验，过期自动清除
-    await this.cacheService.set(
-      getUser.id + '',
-      JSON.stringify(instanceToPlain(getUser)),
-    );
-    return ResultData.ok(data);
   }
 
   /**
@@ -93,24 +96,31 @@ export class AuthService {
    * 生成token
    */
   public genToken(payload: { id: string }): CreateTokenDto {
-    const accessToken = `Bearer ${this.jwtService.sign(payload)}`;
-    const token = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, {
+    const token = this.jwtService.sign(payload, {
       expiresIn: this.configService.get('jwt.refreshExpiresIn'),
     });
+    const accessToken = `Bearer ${token}`;
+    const refreshToken = token;
+    console.log('genToken', token);
     return { token, accessToken, refreshToken };
   }
 
   /**
    * 校验token
    */
-  public validToken(token: string): string {
+  public async validToken(token: string): Promise<string> {
     try {
-      if (!token) return null;
+      const isPermission = await this.configService.get('app.permission');
+      if (!isPermission) return '';
+      if (isPermission && !token) {
+        throw new UnauthorizedException('登录已失效，请重新登录');
+      }
       const { id } = this.jwtService.verify(token.replace('Bearer ', ''));
       return id;
     } catch (error) {
-      return null;
+      console.log('validToken:error', error);
+      throw new UnauthorizedException('登录已失效，请重新登录');
+      // return '';
     }
   }
 
@@ -122,7 +132,7 @@ export class AuthService {
     if (!id) {
       throw new UnauthorizedException('登录已失效，请重新登录');
     }
-    let cacheData = await this.cacheService.get(id + '');
+    let cacheData = await this.cacheService.get(`user_${id}`);
     // jwt验证已经登录，但是redis里没有了用户信息记录，则重新查询之后存起来
     if (!cacheData) {
       // const getUser = await this.userRepository.findOne({
@@ -145,7 +155,7 @@ export class AuthService {
     if (!id) {
       throw new UnauthorizedException('登录已失效，请重新登录');
     }
-    let cacheData = await this.cacheService.get(id + '');
+    let cacheData = await this.cacheService.get(`user_${id}`);
     // jwt验证已经登录，但是redis里没有了用户信息记录，则重新查询之后存起来
     if (!cacheData) {
       // const getUser = await this.userRepository.findOne({

@@ -3,27 +3,14 @@
  * @Date: 2023-08-07 15:13:08
  * @Description: 权限管理
  */
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Headers,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/auth.dto';
-import { ApiBody } from '@nestjs/swagger';
-import { ResultData } from 'src/utils/result';
 import { AllowAnon } from 'src/common/decorators/allow-anon.decorator';
 
 @Controller('/sys/auth')
-@ApiTags('权限管理')
+@ApiTags('⭕️权限管理')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

@@ -1,10 +1,10 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-01-11 20:20:15
- * @LastEditTime: 2025-01-18 16:50:05
+ * @LastEditTime: 2025-01-19 02:18:03
  * @Description: corp.module
  */
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { CorpService } from './corp.service';
 import { CorpController } from './corp.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -14,7 +14,7 @@ import { AuthModule } from '../auth/auth.module';
 const EntityFeatures = TypeOrmModule.forFeature([Corp]);
 
 @Module({
-  imports: [EntityFeatures, AuthModule],
+  imports: [EntityFeatures, forwardRef(() => AuthModule)],
   controllers: [CorpController],
   providers: [CorpService],
   exports: [CorpService],
