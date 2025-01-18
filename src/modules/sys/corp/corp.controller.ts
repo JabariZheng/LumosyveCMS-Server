@@ -1,7 +1,7 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-01-11 20:20:15
- * @LastEditTime: 2025-01-19 01:22:16
+ * @LastEditTime: 2025-01-19 01:25:30
  * @Description: corp.controller
  */
 import {
@@ -26,7 +26,7 @@ import {
   GetPageDto,
 } from './dto/index-corp.dto';
 
-@ApiTags('⭕️租户（企业）管理')
+@ApiTags('✅租户（企业）管理')
 @Controller('/sys/corp')
 export class CorpController {
   constructor(private readonly corpService: CorpService) {}
