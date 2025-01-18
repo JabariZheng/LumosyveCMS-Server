@@ -8,17 +8,23 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, Like, Repository } from 'typeorm';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { GetUserPageDto } from './dto/user.dto';
+import { GetPageDto } from './dto/user.dto';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth/auth.service';
-import { snowflakeID } from 'src/utils';
+import { CommonQueryRepository, snowflakeID } from 'src/utils';
+import { CatchErrors } from 'src/common/decorators/catch-error.decorator';
+import {
+  FormatDefaultPagination,
+  FormatEmptyParams,
+} from 'src/common/decorators/format-dto.decorator';
 
 @Injectable()
 export class UserService {
+  private readonly queryRepository: CommonQueryRepository;
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -26,7 +32,9 @@ export class UserService {
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
     private readonly cacheService: CacheService,
-  ) {}
+  ) {
+    this.queryRepository = new CommonQueryRepository(userRepository);
+  }
 
   /**
    * 新增
@@ -35,52 +43,54 @@ export class UserService {
     dto: CreateUserDto,
     authorization: string,
   ): Promise<ResultData> {
-    const result = await this.findOne({ name: dto.username });
-    if (
-      Object.keys(instanceToPlain(result)).length > 0 &&
-      instanceToPlain(result).deleted === '0'
-    ) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `已存在${dto.username}`,
-      );
-    }
+    // const result = await this.findOne({ name: dto.username });
+    // if (
+    //   Object.keys(instanceToPlain(result)).length > 0 &&
+    //   instanceToPlain(result).deleted === '0'
+    // ) {
+    //   return ResultData.fail(
+    //     this.configService.get('errorCode.valid'),
+    //     `已存在${dto.username}`,
+    //   );
+    // }
 
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
-    const newData: User = {
-      status: '0',
-      ...dto,
-      id: snowflakeID.NextId() as number,
-      deleted: '0',
-      creator: JSON.parse(currentUser).username,
-      create_time: new Date(),
-      update_time: new Date(),
-      updater: JSON.parse(currentUser).username,
-      deleted_time: undefined,
-      login_ip: undefined,
-      login_date: undefined,
-    };
-    await this.userRepository.save(newData);
-    return ResultData.ok(newData, '操作成功');
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
+    // const newData: User = {
+    //   status: '0',
+    //   ...dto,
+    //   // // id: snowflakeID.NextId() as number,
+    //   // // deleted: '0',
+    //   // creator: JSON.parse(currentUser).username,
+    //   // create_time: new Date(),
+    //   // update_time: new Date(),
+    //   // updater: JSON.parse(currentUser).username,
+    //   // deleted_time: undefined,
+    //   // login_ip: undefined,
+    //   // login_date: undefined,
+    // };
+    // await this.userRepository.save(newData);
+    // return ResultData.ok(newData, '操作成功');
+    return ResultData.ok({}, '操作成功');
   }
 
   /**
    * 删除
    */
   public async remove(id: number): Promise<ResultData> {
-    if (!id) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        '请检查id',
-      );
-    }
-    let result = await this.findOne({ id: +id });
-    result = instanceToPlain(result) as User;
-    result.deleted = '1';
-    result.deleted_time = new Date();
-    await this.userRepository.save(result);
-    return ResultData.ok(result, '操作成功');
+    // if (!id) {
+    //   return ResultData.fail(
+    //     this.configService.get('errorCode.valid'),
+    //     '请检查id',
+    //   );
+    // }
+    // let result = await this.findOne({ id: +id });
+    // result = instanceToPlain(result) as User;
+    // result.deleted = '1';
+    // result.deleted_time = new Date();
+    // await this.userRepository.save(result);
+    // return ResultData.ok(result, '操作成功');
+    return ResultData.ok({}, '操作成功');
   }
 
   /**
@@ -101,7 +111,7 @@ export class UserService {
       );
     }
     const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+    const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData = {
       ...instanceToPlain(result),
       ...updateUserDto,
@@ -116,39 +126,50 @@ export class UserService {
   /**
    * 分页
    */
-  public async getUserPage(dto: GetUserPageDto): Promise<ResultData> {
-    const params: GetUserPageDto = {
-      ...dto,
-      pageNo: dto.pageNo ? +dto.pageNo : 1,
-      pageSize: dto.pageSize ? +dto.pageSize : 15,
-    };
+  @CatchErrors()
+  @FormatDefaultPagination()
+  @FormatEmptyParams()
+  public async getUserPage(dto: GetPageDto): Promise<ResultData> {
     const where = {
-      deleted: params.status === '2' ? '1' : '0',
-      status: params.status === '2' ? undefined : params.status,
-      username: params.username,
-      mobile: params.mobile,
+      status: dto.status,
+      userCode: dto.userCode && Like(`%${dto.userCode}%`),
+      loginCode: dto.loginCode && Like(`%${dto.loginCode}%`),
+      userName: dto.userName && Like(`%${dto.userName}%`),
+      email: dto.email && Like(`%${dto.email}%`),
+      mobile: dto.mobile && Like(`%${dto.mobile}%`),
+      phone: dto.phone && Like(`%${dto.phone}%`),
+      sex: dto.sex || undefined,
+      mgrType: dto.mgrType || undefined,
     };
-    const result: [User[], number] = await this.queryCount({
-      where,
-      order: { update_time: 'DESC' },
-      skip: (params.pageNo - 1) * params.pageSize,
-      take: params.pageSize,
-    });
+    console.log('dto', dto);
+    const result: [User[], number] = await this.queryRepository.queryCount(
+      {
+        where,
+        order: { updateDate: 'DESC' },
+        skip: (dto.pageNo - 1) * dto.pageSize,
+        take: dto.pageSize,
+      },
+      User,
+    );
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
-      pageNo: params.pageNo,
-      pageSize: params.pageSize,
+      pageNo: dto.pageNo,
+      pageSize: dto.pageSize,
     });
   }
 
   /**
    * 查询用户列表
    */
+  @CatchErrors()
   public async getUserList() {
-    const result: [User[], number] = await this.queryCount({
-      where: { status: '0', deleted: '0' },
-    });
+    const result: [User[], number] = await this.queryRepository.queryCount(
+      {
+        where: { status: '0' },
+      },
+      User,
+    );
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],

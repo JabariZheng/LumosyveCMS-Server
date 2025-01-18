@@ -18,19 +18,19 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { ActionByIdDot, GetUserInfoDto, GetUserPageDto } from './dto/user.dto';
+import { ActionByIdDot, GetUserInfoDto, GetPageDto } from './dto/user.dto';
 import { ResultData } from 'src/utils/result';
 
 @Controller('/sys/user')
-@ApiTags('用户管理')
+@ApiTags('⭕️用户管理')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('register')
-  @ApiOperation({ summary: '新增' })
-  registerUser(@Body() createDto: CreateUserDto, @Headers() headers: any) {
-    return this.userService.create(createDto, headers.authorization);
-  }
+  // @Post('register')
+  // @ApiOperation({ summary: '新增' })
+  // registerUser(@Body() createDto: CreateUserDto, @Headers() headers: any) {
+  //   return this.userService.create(createDto, headers.authorization);
+  // }
 
   @Post('add')
   @ApiOperation({ summary: '新增' })
@@ -52,7 +52,7 @@ export class UserController {
 
   @Get('page')
   @ApiOperation({ summary: '分页' })
-  getPage(@Query() page: GetUserPageDto) {
+  getPage(@Query() page: GetPageDto) {
     return this.userService.getUserPage(page);
   }
 
@@ -76,7 +76,7 @@ export class UserController {
 
   // @Get('page')
   // @ApiOperation({ summary: '用户分页' })
-  // getUserPage(@Query() userPage: GetUserPageDto) {
+  // getUserPage(@Query() userPage: GetPageDto) {
   //   return this.userService.getUserPage(userPage);
   // }
 
