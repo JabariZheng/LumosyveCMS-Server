@@ -5,7 +5,14 @@
  */
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { QueryPageDto } from 'src/common/dto/common.dto';
 
 /**
@@ -48,9 +55,24 @@ export class GetPageDto extends QueryPageDto {
   status: string;
 }
 
-export class ActionByIdDot {
+export class ActionByUserCodeDot {
   @IsString()
-  @ApiProperty({ description: 'id' })
-  @IsNotEmpty({ message: '请检查Id' })
-  id: string;
+  @ApiProperty({ description: '用户编码' })
+  @IsNotEmpty({ message: '请检查用户编码' })
+  userCode: string;
+}
+
+export class DelActionByIdsDot {
+  @ApiProperty({ description: 'Ids', type: Array, required: true })
+  @IsNotEmpty({ message: '请检查Ids' })
+  @IsArray()
+  ids: string[];
+
+  @ApiProperty({
+    description: '状态（0正常 1删除 2停用）',
+    type: String,
+    required: false,
+  })
+  @IsOptional()
+  status: string;
 }

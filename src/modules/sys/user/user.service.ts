@@ -12,7 +12,7 @@ import { FindManyOptions, Like, Repository } from 'typeorm';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { GetPageDto } from './dto/user.dto';
+import { DelActionByIdsDot, GetPageDto } from './dto/user.dto';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth/auth.service';
 import { CommonQueryRepository, snowflakeID } from 'src/utils';
@@ -21,6 +21,7 @@ import {
   FormatDefaultPagination,
   FormatEmptyParams,
 } from 'src/common/decorators/format-dto.decorator';
+import * as moment from 'moment';
 
 @Injectable()
 export class UserService {
@@ -39,88 +40,144 @@ export class UserService {
   /**
    * 新增
    */
+  @CatchErrors()
   public async create(
-    dto: CreateUserDto,
+    createUserDto: CreateUserDto,
     authorization: string,
   ): Promise<ResultData> {
-    // const result = await this.findOne({ name: dto.username });
-    // if (
-    //   Object.keys(instanceToPlain(result)).length > 0 &&
-    //   instanceToPlain(result).deleted === '0'
-    // ) {
-    //   return ResultData.fail(
-    //     this.configService.get('errorCode.valid'),
-    //     `已存在${dto.username}`,
-    //   );
-    // }
+    // TODO 需要唯一并且排除已删除状态的数据
 
     // const auUserId = this.authService.validToken(authorization);
     // const currentUser = await this.cacheService.get(`user_${auUserId}`);
-    // const newData: User = {
-    //   status: '0',
-    //   ...dto,
-    //   // // id: snowflakeID.NextId() as number,
-    //   // // deleted: '0',
-    //   // creator: JSON.parse(currentUser).username,
-    //   // create_time: new Date(),
-    //   // update_time: new Date(),
-    //   // updater: JSON.parse(currentUser).username,
-    //   // deleted_time: undefined,
-    //   // login_ip: undefined,
-    //   // login_date: undefined,
-    // };
-    // await this.userRepository.save(newData);
-    // return ResultData.ok(newData, '操作成功');
-    return ResultData.ok({}, '操作成功');
+
+    const newData = {
+      ...createUserDto,
+      status: createUserDto.status || '0',
+      id: snowflakeID.NextId() + '',
+      createBy: 'system',
+      // createBy: JSON.parse(currentUser).username || 'system',
+      createDate: new Date(),
+      // updateBy: JSON.parse(currentUser).username || 'system',
+      updateBy: 'system',
+      updateDate: new Date(),
+      corpCode: 'linshuiyunxi',
+      corpName: '林水云夕',
+      // 手动格式化时间
+      pwdUpdateDate: createUserDto.pwdUpdateDate
+        ? new Date(createUserDto.pwdUpdateDate)
+        : null,
+      pwdQuestUpdateDate: createUserDto.pwdQuestUpdateDate
+        ? new Date(createUserDto.pwdQuestUpdateDate)
+        : null,
+      lastLoginDate: createUserDto.lastLoginDate
+        ? new Date(createUserDto.lastLoginDate)
+        : null,
+      freezeDate: createUserDto.freezeDate
+        ? new Date(createUserDto.freezeDate)
+        : null,
+    };
+    await this.userRepository.save(newData);
+    return ResultData.ok(
+      {
+        ...newData,
+        password: undefined,
+        createDate: moment(newData.createDate).format('YYYY-MM-DD HH:mm:ss'),
+        updateDate: moment(newData.updateDate).format('YYYY-MM-DD HH:mm:ss'),
+      },
+      '操作成功',
+    );
   }
 
   /**
    * 删除
    */
-  public async remove(id: number): Promise<ResultData> {
-    // if (!id) {
-    //   return ResultData.fail(
-    //     this.configService.get('errorCode.valid'),
-    //     '请检查id',
-    //   );
-    // }
-    // let result = await this.findOne({ id: +id });
-    // result = instanceToPlain(result) as User;
-    // result.deleted = '1';
-    // result.deleted_time = new Date();
-    // await this.userRepository.save(result);
-    // return ResultData.ok(result, '操作成功');
+  @CatchErrors()
+  public async remove(
+    opt: DelActionByIdsDot,
+    authorization: string,
+  ): Promise<ResultData> {
+    const { ids, status } = opt;
+    if (!ids || ids.length === 0) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        '请检查ids',
+      );
+    }
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
+
+    await this.userRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({
+        status: status || '1',
+        updateDate: new Date(),
+        // updateBy: JSON.parse(currentUser).username || 'system',
+        updateBy: 'system',
+      })
+      .whereInIds(ids)
+      .execute();
     return ResultData.ok({}, '操作成功');
   }
 
   /**
    * 更新
    */
-  public async update(updateUserDto: UpdateUserDto, authorization: string) {
+  @CatchErrors()
+  public async update(updateUserDto: any, authorization: string) {
     if (!updateUserDto.id) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
         '请检查id',
       );
     }
-    const result = await this.findOne({ id: +updateUserDto.id });
+    const result: User = await this.queryRepository.queryOne(
+      { id: updateUserDto.id },
+      User,
+    );
     if (!result) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
         `未查询到${updateUserDto.id}，请检查id`,
       );
     }
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(`user_${auUserId}`);
+    const resultPlain = instanceToPlain(result);
+    if (resultPlain.status !== '0') {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `该条数据为非可用状态`,
+      );
+    }
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData = {
-      ...instanceToPlain(result),
       ...updateUserDto,
-      id: +updateUserDto.id,
-      update_time: new Date(),
-      updater: JSON.parse(currentUser).username,
+      updateBy: 'system',
+      // updateBy: JSON.parse(currentUser).username || 'system',
+      updateDate: new Date(),
+      // 手动格式化时间
+      pwdUpdateDate: updateUserDto.pwdUpdateDate
+        ? new Date(updateUserDto.pwdUpdateDate)
+        : null,
+      pwdQuestUpdateDate: updateUserDto.pwdQuestUpdateDate
+        ? new Date(updateUserDto.pwdQuestUpdateDate)
+        : null,
+      lastLoginDate: updateUserDto.lastLoginDate
+        ? new Date(updateUserDto.lastLoginDate)
+        : null,
+      freezeDate: updateUserDto.freezeDate
+        ? new Date(updateUserDto.freezeDate)
+        : null,
     };
-    await this.userRepository.save(newData);
-    return ResultData.ok(newData, '操作成功');
+    await this.userRepository.update({ id: updateUserDto.id }, { ...newData });
+    return ResultData.ok(
+      {
+        ...newData,
+        createDate: moment(result.createDate).format('YYYY-MM-DD HH:mm:ss'),
+        updateDate: moment(newData.updateDate).format('YYYY-MM-DD HH:mm:ss'),
+      },
+      '操作成功',
+    );
   }
 
   /**
@@ -179,8 +236,12 @@ export class UserService {
   /**
    * 查询信息
    */
-  public async getInfo(id: number): Promise<ResultData> {
-    const result = await this.findOne({ id: +id });
+  @CatchErrors()
+  public async getInfo(userCode: string): Promise<ResultData> {
+    const result = await this.queryRepository.queryOne(
+      { userCode: userCode },
+      User,
+    );
     return ResultData.ok(result ? instanceToPlain(result) : {});
   }
 

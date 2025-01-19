@@ -8,26 +8,28 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
   Delete,
   Query,
   Headers,
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { ActionByIdDot, GetUserInfoDto, GetPageDto } from './dto/user.dto';
-import { ResultData } from 'src/utils/result';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ActionByUserCodeDot,
+  DelActionByIdsDot,
+  GetPageDto,
+} from './dto/user.dto';
 
 @Controller('/sys/user')
-@ApiTags('⭕️用户管理')
+@ApiTags('✅用户管理')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   // @Post('register')
-  // @ApiOperation({ summary: '新增' })
+  // @ApiOperation({ summary: '注册' })
   // registerUser(@Body() createDto: CreateUserDto, @Headers() headers: any) {
   //   return this.userService.create(createDto, headers.authorization);
   // }
@@ -40,11 +42,11 @@ export class UserController {
 
   @Delete('delete')
   @ApiOperation({ summary: '删除' })
-  remove(@Query() query: ActionByIdDot) {
-    return this.userService.remove(+query.id);
+  remove(@Body() query: DelActionByIdsDot, @Headers() headers: any) {
+    return this.userService.remove(query, headers.authorization);
   }
 
-  @Patch('update')
+  @Put('update')
   @ApiOperation({ summary: '更新' })
   update(@Body() updateUserDto: UpdateUserDto, @Headers() headers: any) {
     return this.userService.update(updateUserDto, headers.authorization);
@@ -64,46 +66,13 @@ export class UserController {
 
   @Get('info')
   @ApiOperation({ summary: '详情' })
-  getInfo(@Query() query: ActionByIdDot) {
-    return this.userService.getInfo(+query.id);
+  getInfo(@Query() query: ActionByUserCodeDot) {
+    return this.userService.getInfo(query.userCode);
   }
 
-  @Get('onlines')
-  @ApiOperation({ summary: '获取在线人数' })
-  getOnlineUsers() {
-    return this.userService.getOnlineUsers();
-  }
-
-  // @Get('page')
-  // @ApiOperation({ summary: '用户分页' })
-  // getUserPage(@Query() userPage: GetPageDto) {
-  //   return this.userService.getUserPage(userPage);
-  // }
-
-  // @Get('list')
-  // @ApiOperation({ summary: '用户列表' })
-  // getUserList() {
-  //   return this.userService.getUserList();
-  // }
-
-  // @Get('info')
-  // @ApiOperation({ summary: '查询用户信息' })
-  // getInfo(@Query() query: GetUserInfoDto): Promise<ResultData> {
-  //   return this.userService.getInfo(query.id);
-  // }
-
-  // @Post('register')
-  // register(@Body() createUserDto: CreateUserDto) {
-  //   return this.userService.registerUser(createUserDto);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.userService.update(+id, updateUserDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.userService.remove(+id);
+  // @Get('onlines')
+  // @ApiOperation({ summary: '获取在线人数' })
+  // getOnlineUsers() {
+  //   return this.userService.getOnlineUsers();
   // }
 }
