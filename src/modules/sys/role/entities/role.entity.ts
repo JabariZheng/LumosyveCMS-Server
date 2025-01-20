@@ -9,45 +9,51 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('sys_role')
 export class Role {
-  @PrimaryColumn({ type: 'bigint', comment: 'ID' })
-  id: number;
+  /* ID */
+  @PrimaryColumn()
+  id: string;
 
-  @Column({ type: 'varchar', comment: '角色名称' })
-  name: string;
+  @Column({ name: 'role_code', comment: '角色编码' })
+  roleCode: string;
 
-  @Column({ type: 'varchar', comment: '角色编码' })
-  code: string;
+  @Column({ name: 'role_name', comment: '角色名称' })
+  roleName: string;
 
-  @Column({ type: 'int', comment: '是否为系统角色' })
-  is_system_role: number;
+  @Column({ name: 'role_sort', comment: '角色排序（升序）' })
+  roleSort: number;
 
-  @Column({ type: 'varchar', comment: '备注' })
-  remark: string;
+  @Column({ name: 'is_sys', comment: '系统内置（1是 0否）' })
+  isSys: string;
 
-  @Column({ type: 'bigint', comment: '排序' })
-  sort: number;
+  @Column({ name: 'user_type', comment: '用户类型（employee员工 member会员）' })
+  userType: string;
 
-  @Column({ type: 'int', comment: '状态（0整体 1停用）' })
-  status: number;
+  @Column({ name: 'desktop_url', comment: '桌面地址（仪表盘地址）' })
+  desktopUrl: string;
 
-  @Column({ type: 'varchar', comment: '创建着' })
-  creator: string;
+  @Column({ name: 'status', comment: '状态（0正常 1删除 2停用）' })
+  status: string;
 
-  @Column({ type: 'datetime', comment: '创建时间' })
-  @Transform(({ value }) => formatDate(value))
-  create_time: Date;
+  @Column({ name: 'create_by', comment: '创建者' })
+  createBy: string;
 
-  @Column({ type: 'varchar', comment: '更新者' })
-  updater: string;
+  @Column({ name: 'create_date', comment: '创建时间' })
+  @Transform(({ value }) => value && formatDate(value))
+  createDate: Date;
 
-  @Column({ type: 'datetime', comment: '更新时间' })
-  @Transform(({ value }) => formatDate(value))
-  update_time: Date;
+  @Column({ name: 'update_by', comment: '更新者' })
+  updateBy: string;
 
-  @Column({ type: 'tinyint', comment: '是否已删除' })
-  deleted: number;
+  @Column({ name: 'update_date', comment: '更新时间' })
+  @Transform(({ value }) => value && formatDate(value))
+  updateDate: Date;
 
-  @Column({ type: 'datetime', comment: '删除时间' })
-  @Transform(({ value }) => formatDate(value))
-  deleted_time: Date;
+  @Column({ name: 'remarks', comment: '备注信息' })
+  remarks: string;
+
+  @Column({ name: 'corp_code', comment: '租户代码' })
+  corpCode: string;
+
+  @Column({ name: 'corp_name', comment: '租户名称' })
+  corpName: string;
 }

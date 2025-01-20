@@ -8,20 +8,19 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
   Delete,
   Query,
   Headers,
+  Put,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ActionByNumberIdDot } from 'src/common/dto/common.dto';
-import { GetPageDto } from './dto/index.dto';
+import { ActionByIdDot } from 'src/common/dto/common.dto';
+import { DelActionByIdsDot, GetPageDto } from './dto/index.dto';
 
-@ApiTags('角色管理')
+@ApiTags('✅角色管理')
 @Controller('/sys/role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
@@ -34,11 +33,11 @@ export class RoleController {
 
   @Delete('delete')
   @ApiOperation({ summary: '删除' })
-  remove(@Query() query: ActionByNumberIdDot) {
-    return this.roleService.remove(query.id);
+  remove(@Body() query: DelActionByIdsDot, @Headers() headers: any) {
+    return this.roleService.remove(query, headers.authorization);
   }
 
-  @Patch('update')
+  @Put('update')
   @ApiOperation({ summary: '更新' })
   update(@Body() updateDto: UpdateRoleDto, @Headers() headers: any) {
     return this.roleService.update(updateDto, headers.authorization);
@@ -58,7 +57,7 @@ export class RoleController {
 
   @Get('info')
   @ApiOperation({ summary: '详情' })
-  getInfo(@Query() query: ActionByNumberIdDot) {
-    return this.roleService.getInfo(query.id);
+  getInfo(@Query() detailDto: ActionByIdDot) {
+    return this.roleService.getInfo(detailDto.id);
   }
 }

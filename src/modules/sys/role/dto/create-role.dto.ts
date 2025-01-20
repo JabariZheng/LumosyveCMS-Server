@@ -4,49 +4,46 @@
  * @Description: dto.create
  */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateRoleDto {
-  @ApiProperty({ description: '角色名称', type: 'string', required: true })
-  @IsString()
-  @IsNotEmpty({ message: '请输入角色名称' })
-  name: string;
-
-  @ApiProperty({ description: '角色编码', type: 'string', required: true })
+  @ApiProperty({ description: '角色编码' })
   @IsString()
   @IsNotEmpty({ message: '请输入角色编码' })
-  code: string;
+  roleCode: string;
 
-  @ApiProperty({
-    description: '是否为系统角色',
-    type: 'number',
-    required: true,
-  })
-  @IsNumber()
-  @IsNotEmpty({ message: '请选择是否为系统角色' })
-  is_system_role: number;
+  @ApiProperty({ description: '角色名称' })
+  @IsString()
+  @IsNotEmpty({ message: '请输入角色名称' })
+  roleName: string;
 
-  @ApiProperty({ description: '备注', type: 'string' })
-  remark: string;
+  @ApiProperty({ description: '角色排序（升序）' })
+  roleSort: number;
 
-  @ApiProperty({ description: '状态（0正常 1停用）', type: 'number' })
-  status: number;
+  @ApiProperty({ description: '系统内置（1是 0否）' })
+  isSys: string;
 
-  @ApiProperty({ description: '创建者', type: 'string' })
-  creator: string;
+  @ApiProperty({ description: '用户类型（employee员工 member会员）' })
+  userType: string;
 
-  @ApiProperty({ description: '创建时间', type: 'string', format: 'date-time' })
-  create_time: Date;
+  @ApiProperty({ description: '桌面地址（仪表盘地址）' })
+  desktopUrl: string;
 
-  @ApiProperty({ description: '更新者', type: 'string' })
-  updater: string;
+  @ApiProperty({ description: '状态（0正常 1删除 2停用）' })
+  @IsString()
+  @IsNotEmpty({ message: '请输入状态' })
+  status: string;
 
-  @ApiProperty({ description: '更新时间', type: 'string', format: 'date-time' })
-  update_time: Date;
+  @ApiProperty({ description: '备注信息' })
+  remarks: string;
 
-  @ApiProperty({ description: '是否删除', type: 'number' })
-  deleted: number;
+  // @ApiProperty({ description: '租户代码' })
+  // @IsString()
+  // @IsNotEmpty({ message: '请输入租户代码' })
+  // corpCode: string;
 
-  @ApiProperty({ description: '删除时间', type: 'string', format: 'date-time' })
-  deleted_time: Date;
+  // @ApiProperty({ description: '租户名称' })
+  // @IsString()
+  // @IsNotEmpty({ message: '请输入租户名称' })
+  // corpName: string;
 }

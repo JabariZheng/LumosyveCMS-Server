@@ -8,147 +8,203 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, Like, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { snowflakeID } from 'src/utils';
-import { GetPageDto } from './dto/index.dto';
+import { CommonQueryRepository, snowflakeID } from 'src/utils';
+import { DelActionByIdsDot, GetPageDto } from './dto/index.dto';
+import { CatchErrors } from 'src/common/decorators/catch-error.decorator';
+import * as moment from 'moment';
+import {
+  FormatDefaultPagination,
+  FormatEmptyParams,
+} from 'src/common/decorators/format-dto.decorator';
 
 @Injectable()
 export class RoleService {
+  private readonly queryRepository: CommonQueryRepository;
+
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
     private readonly cacheService: CacheService,
-  ) {}
+  ) {
+    this.queryRepository = new CommonQueryRepository(roleRepository);
+  }
 
   /**
    * 新增
    */
+  @CatchErrors()
   public async create(
-    createDto: CreateRoleDto,
+    createRoleDto: CreateRoleDto,
     authorization: string,
   ): Promise<ResultData> {
-    const result = await this.findOne({ name: createDto.name });
-    if (
-      Object.keys(instanceToPlain(result)).length > 0 &&
-      instanceToPlain(result).deleted === '0'
-    ) {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `已存在${createDto.name}`,
-      );
-    }
+    // TODO 需要唯一并且排除已删除状态的数据
+    // const result = await this.queryRepository.queryOne(
+    //   { roleCode: createRoleDto.roleCode },
+    //   Role,
+    // );
+    // if (
+    //   Object.keys(instanceToPlain(result)).length > 0 &&
+    //   instanceToPlain(result).deleted === '0'
+    // ) {
+    //   return ResultData.fail(
+    //     this.configService.get('errorCode.valid'),
+    //     `已存在${createDto.name}`,
+    //   );
+    // }
 
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
-    // 自动获取当前顺序
-    const { data } = await this.getList();
-    const newData: Role = {
-      status: 0,
-      ...createDto,
-      id: snowflakeID.NextId() as number,
-      deleted: 0,
-      sort: data.total++,
-      creator: JSON.parse(currentUser).username,
-      create_time: new Date(),
-      update_time: new Date(),
-      updater: JSON.parse(currentUser).username,
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
+
+    const newData = {
+      ...createRoleDto,
+      status: createRoleDto.status || '0',
+      id: snowflakeID.NextId() + '',
+      createBy: 'system',
+      // createBy: JSON.parse(currentUser).username || 'system',
+      createDate: new Date(),
+      // updateBy: JSON.parse(currentUser).username || 'system',
+      updateBy: 'system',
+      updateDate: new Date(),
     };
     await this.roleRepository.save(newData);
-    return ResultData.ok(newData, '操作成功');
+    return ResultData.ok(
+      {
+        ...newData,
+        createDate: moment(newData.createDate).format('YYYY-MM-DD HH:mm:ss'),
+        updateDate: moment(newData.updateDate).format('YYYY-MM-DD HH:mm:ss'),
+      },
+      '操作成功',
+    );
   }
 
   /**
    * 删除
    */
-  public async remove(id: number) {
-    if (!id) {
+  @CatchErrors()
+  public async remove(opt: DelActionByIdsDot, authorization: string) {
+    const { ids, status } = opt;
+    if (!ids || ids.length === 0) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
-        '请检查id',
+        '请检查ids',
       );
     }
-    // 自身删除
-    let result = await this.findOne({ id: +id });
-    result = instanceToPlain(result) as Role;
-    result.deleted = 1;
-    result.deleted_time = new Date();
-    await this.roleRepository.save(result);
-    return ResultData.ok(result, '操作成功');
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
+
+    await this.roleRepository
+      .createQueryBuilder()
+      .update(Role)
+      .set({
+        status: status || '1',
+        updateDate: new Date(),
+        updateBy: 'system',
+      })
+      .whereInIds(ids)
+      .execute();
+    return ResultData.ok({}, '操作成功');
   }
 
   /**
    * 更新
    */
-  public async update(updateDto: UpdateRoleDto, authorization: string) {
-    if (!updateDto.id) {
+  @CatchErrors()
+  public async update(updateRoleDto: UpdateRoleDto, authorization: string) {
+    if (!updateRoleDto.id) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
         '请检查id',
       );
     }
-    const result = await this.findOne({ id: +updateDto.id });
+    const result = await this.queryRepository.queryOne(
+      { id: updateRoleDto.id },
+      Role,
+    );
+
     if (!result) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
-        `未查询到${updateDto.id}，请检查id`,
+        `未查询到${updateRoleDto.id}，请检查id`,
       );
     }
-    const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+
+    if (instanceToPlain(result).status !== '0') {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `该条数据为非可用状态`,
+      );
+    }
+
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData = {
-      ...instanceToPlain(result),
-      ...updateDto,
-      id: +updateDto.id,
-      update_time: new Date(),
-      updater: JSON.parse(currentUser).username,
+      ...updateRoleDto,
+      updateBy: 'system',
+      // updateBy: JSON.parse(currentUser).username || 'system',
+      updateDate: new Date(),
     };
-    await this.roleRepository.save(newData);
-    return ResultData.ok(newData, '操作成功');
+    await this.roleRepository.update({ id: updateRoleDto.id }, { ...newData });
+    return ResultData.ok(
+      {
+        ...newData,
+        createDate: moment(result.createDate).format('YYYY-MM-DD HH:mm:ss'),
+        updateDate: moment(newData.updateDate).format('YYYY-MM-DD HH:mm:ss'),
+      },
+      '操作成功',
+    );
   }
 
   /**
    * 分页
    */
+
+  @CatchErrors()
+  @FormatDefaultPagination()
+  @FormatEmptyParams()
   public async getPage(dto: GetPageDto): Promise<ResultData> {
-    const params: GetPageDto = {
-      ...dto,
-      pageNo: dto.pageNo ? +dto.pageNo : 1,
-      pageSize: dto.pageSize ? +dto.pageSize : 15,
-    };
     const where = {
-      deleted: +params.status === 2 ? 1 : 0,
-      status: +params.status === 2 ? undefined : params.status,
-      name: params.name,
-      type: params.type,
+      roleCode: dto.roleCode && Like(`%${dto.roleCode}%`),
+      roleName: dto.roleName && Like(`%${dto.roleName}%`),
+      isSys: dto.isSys && Like(`%${dto.isSys}%`),
+      userType: dto.userType && Like(`%${dto.userType}%`),
+      status: dto.status,
     };
-    const result: [Role[], number] = await this.queryCount({
-      where,
-      order: { update_time: 'DESC' },
-      skip: (params.pageNo - 1) * params.pageSize,
-      take: params.pageSize,
-    });
+    const result: [Role[], number] = await this.queryRepository.queryCount(
+      {
+        where,
+        order: { updateDate: 'DESC' },
+        skip: (dto.pageNo - 1) * dto.pageSize,
+        take: dto.pageSize,
+      },
+      Role,
+    );
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
-      pageNo: params.pageNo,
-      pageSize: params.pageSize,
+      pageNo: dto.pageNo,
+      pageSize: dto.pageSize,
     });
   }
 
   /**
    * 列表
    */
+  @CatchErrors()
   public async getList(): Promise<ResultData> {
-    const result: [Role[], number] = await this.queryCount({
-      where: { status: 0, deleted: 0 },
-    });
+    const result: [Role[], number] = await this.queryRepository.queryCount(
+      {
+        where: { status: '0' },
+      },
+      Role,
+    );
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
@@ -158,32 +214,12 @@ export class RoleService {
   /**
    * 详情
    */
-  public async getInfo(id: number): Promise<ResultData> {
-    const result = await this.findOne({ id: +id });
+  @CatchErrors()
+  public async getInfo(id: string): Promise<ResultData> {
+    if (!id) {
+      return ResultData.ok({});
+    }
+    const result = await this.queryRepository.queryOne({ id: id }, Role);
     return ResultData.ok(result ? instanceToPlain(result) : {});
-  }
-
-  public async findOne(opt: any): Promise<Role> {
-    let result = await this.roleRepository.findOne({ where: opt });
-    result = plainToInstance(
-      Role,
-      { ...result },
-      { enableImplicitConversion: true },
-    );
-    return result;
-  }
-
-  private async queryCount(options: any): Promise<[Role[], number]> {
-    const repositoryOptions: FindManyOptions<Role> = {
-      order: { update_time: 'DESC' },
-      ...options,
-    };
-    const result: [Role[], number] = await this.roleRepository.findAndCount(
-      repositoryOptions,
-    );
-    const data: Role[] = plainToInstance(Role, result[0], {
-      enableImplicitConversion: true,
-    });
-    return [data, result[1]];
   }
 }

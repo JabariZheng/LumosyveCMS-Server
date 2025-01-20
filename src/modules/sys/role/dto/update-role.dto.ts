@@ -5,11 +5,11 @@
  */
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateRoleDto } from './create-role.dto';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateRoleDto extends PartialType(CreateRoleDto) {
   @ApiProperty({ description: 'id', required: true })
-  @IsNumber()
+  @IsString()
   @IsNotEmpty({ message: '请检查id' })
-  id: number;
+  id: string;
 }
