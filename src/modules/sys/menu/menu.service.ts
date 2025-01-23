@@ -49,7 +49,7 @@ export class MenuService {
     }
 
     const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+    const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData: Menu = {
       status: 0,
       ...createDto,
@@ -116,7 +116,7 @@ export class MenuService {
       );
     }
     const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+    const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData = {
       ...instanceToPlain(result),
       ...updateDto,
@@ -208,7 +208,7 @@ export class MenuService {
    */
   public async initMenuRoute(authorization: string) {
     const auUserId = this.authService.validToken(authorization);
-    const currentUser = await this.cacheService.get(auUserId);
+    const currentUser = await this.cacheService.get(`user_${auUserId}`);
     let result: Menu[] = [];
     let parent_id = 0;
     let sortNum = 0;

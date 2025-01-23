@@ -22,10 +22,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './modules/sys/auth/auth.module';
 import { JwtAuthGuard } from './common/guards/auth.guard';
-// import { ViewsModule } from './modules/sys/views/views.module';
 import { DictModule } from './modules/sys/dict/dict.module';
 import { DictDataModule } from './modules/sys/dict-data/dict-data.module';
-// import { MenuModule } from './modules/sys/menu/menu.module';
+import { MenuModule } from './modules/sys/menu/menu.module';
 import { RoleModule } from './modules/sys/role/role.module';
 import { join } from 'path';
 import { UploadImagesModule } from './modules/sys/upload-images/upload-images.module';
@@ -65,7 +64,7 @@ import { CorpModule } from './modules/sys/corp/corp.module';
     // ViewsModule,
     DictModule,
     DictDataModule,
-    // MenuModule,
+    MenuModule,
     RoleModule,
     UploadImagesModule,
     CorpModule,

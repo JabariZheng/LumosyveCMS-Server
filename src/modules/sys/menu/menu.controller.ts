@@ -21,7 +21,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ActionByIdDot, ActionByNumberIdDot } from 'src/common/dto/common.dto';
 import { GetPageDto } from './dto/index.dto';
 
-@ApiTags('菜单管理')
+@ApiTags('⭕️菜单管理')
 @Controller('/sys/menu')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
