@@ -19,10 +19,10 @@ export class CreateTokenDto {
   token: string;
 
   @ApiProperty({ description: 'token(Bearer)' })
-  accessToken: string;
+  accessToken?: string;
 
   @ApiProperty({ description: '刷新token' })
-  refreshToken: string;
+  refreshToken?: string;
 }
 
 export class ActionByIdDot {
