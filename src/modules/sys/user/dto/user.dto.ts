@@ -56,10 +56,20 @@ export class GetPageDto extends QueryPageDto {
 }
 
 export class ActionByUserCodeDot {
-  @IsString()
+  // @IsString()
   @ApiProperty({ description: '用户编码' })
-  @IsNotEmpty({ message: '请检查用户编码' })
-  userCode: string;
+  // @IsNotEmpty({ message: '请检查用户编码' })
+  userCode?: string;
+
+  // @IsString()
+  @ApiProperty({ description: '登录账号' })
+  // @IsNotEmpty({ message: '请检查用户编码' })
+  loginCode?: string;
+
+  // @IsString()
+  @ApiProperty({ description: 'id' })
+  // @IsNotEmpty({ message: '请检查用户编码' })
+  id?: string;
 }
 
 export class DelActionByIdsDot {

@@ -26,7 +26,6 @@ export class User {
   userName: string;
 
   /* 登录密码 */
-  @Exclude()
   @Column({ name: 'password', comment: '登录密码' })
   password: string;
 

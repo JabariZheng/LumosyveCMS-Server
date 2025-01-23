@@ -24,7 +24,7 @@ import {
 } from './dto/user.dto';
 
 @Controller('/sys/user')
-@ApiTags('✅用户管理')
+@ApiTags('用户管理')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -67,7 +67,7 @@ export class UserController {
   @Get('info')
   @ApiOperation({ summary: '详情' })
   getInfo(@Query() query: ActionByUserCodeDot) {
-    return this.userService.getInfo(query.userCode);
+    return this.userService.getInfo(query);
   }
 
   // @Get('onlines')

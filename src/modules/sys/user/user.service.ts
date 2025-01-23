@@ -12,7 +12,11 @@ import { FindManyOptions, Like, Repository } from 'typeorm';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { DelActionByIdsDot, GetPageDto } from './dto/user.dto';
+import {
+  ActionByUserCodeDot,
+  DelActionByIdsDot,
+  GetPageDto,
+} from './dto/user.dto';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth/auth.service';
 import { CommonQueryRepository, snowflakeID } from 'src/utils';
@@ -186,7 +190,10 @@ export class UserService {
   @CatchErrors()
   @FormatDefaultPagination()
   @FormatEmptyParams()
-  public async getUserPage(dto: GetPageDto): Promise<ResultData> {
+  public async getUserPage(
+    dto: GetPageDto,
+    excludePsd = true,
+  ): Promise<ResultData> {
     const where = {
       status: dto.status,
       userCode: dto.userCode && Like(`%${dto.userCode}%`),
@@ -209,7 +216,13 @@ export class UserService {
       User,
     );
     return ResultData.ok({
-      list: instanceToPlain(result[0]),
+      list: instanceToPlain(result[0]).map((item: User) => {
+        return {
+          ...item,
+          // 手动去除，以便其余地方直接调用
+          password: excludePsd ? undefined : item.password,
+        };
+      }),
       total: result[1],
       pageNo: dto.pageNo,
       pageSize: dto.pageSize,
@@ -220,7 +233,7 @@ export class UserService {
    * 查询用户列表
    */
   @CatchErrors()
-  public async getUserList() {
+  public async getUserList(excludePsd = true) {
     const result: [User[], number] = await this.queryRepository.queryCount(
       {
         where: { status: '0' },
@@ -228,7 +241,13 @@ export class UserService {
       User,
     );
     return ResultData.ok({
-      list: instanceToPlain(result[0]),
+      list: instanceToPlain(result[0]).map((item: User) => {
+        return {
+          ...item,
+          // 手动去除，以便其余地方直接调用
+          password: excludePsd ? undefined : item.password,
+        };
+      }),
       total: result[1],
     });
   }
@@ -237,12 +256,33 @@ export class UserService {
    * 查询信息
    */
   @CatchErrors()
-  public async getInfo(userCode: string): Promise<ResultData> {
+  public async getInfo(
+    opt: ActionByUserCodeDot,
+    excludePsd = true,
+  ): Promise<ResultData> {
+    if (Object.keys(opt).length === 0) {
+      return ResultData.ok({});
+    }
     const result = await this.queryRepository.queryOne(
-      { userCode: userCode },
+      {
+        userCode: opt.userCode ? opt.userCode : undefined,
+        id: opt.id ? opt.id : undefined,
+        loginCode: opt.loginCode ? opt.loginCode : undefined,
+      },
       User,
     );
-    return ResultData.ok(result ? instanceToPlain(result) : {});
+    if (Object.keys(result).length === 0) {
+      return ResultData.ok({});
+    }
+    return ResultData.ok(
+      result
+        ? {
+            ...instanceToPlain(result),
+            // 手动去除，以便其余地方直接调用
+            password: excludePsd ? undefined : instanceToPlain(result).password,
+          }
+        : {},
+    );
   }
 
   /**
