@@ -4,7 +4,7 @@ app:
   prefix: '/admin-api'
   host: 'localhost'
   port: 7001
-  permission: false
+  permission: true
   staticPath: 'public/upload'
 # 数据库配置
 db:
@@ -30,12 +30,12 @@ redis:
   db: 0
   password: '4zbndsfh'
 
-# jwt 配置
+# jwt 配置（过期时间单位为秒）
 jwt:
   secretkey: 'YmFja2VuZF9ub2Rl'
-  expiresin: '1h'
+  expiresIn: 86400
   # expiresin: '5s'
-  refreshExpiresIn: '2h'
+  # refreshExpiresIn: '2h'
 # swagger 配置
 swagger:
   title: 'Nest-Admin api'
@@ -49,4 +49,4 @@ errorCode:
 # 全局
 common:
   # 白名单
-  whiteList: []
+  whiteList: ['/admin-api/sys/auth/login']
