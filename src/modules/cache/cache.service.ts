@@ -30,12 +30,13 @@ export class CacheService {
    * @returns Promise<any>
    */
   async set(key: string, value: any, second?: number) {
-    log2term('redis set key', key, 'value ', value);
+    log2term('redis set key', key, 'value ', value, 'second', second);
     value = JSON.stringify(value);
     let options = {};
     if (second) {
       options = { EX: second };
     }
+    console.log('options', options);
     return await this.redisClient.set(key, value, options);
   }
   //删除值
@@ -52,5 +53,9 @@ export class CacheService {
   async getKeys(key: string) {
     const keys = await this.redisClient.keys(key);
     return keys;
+  }
+  // 更新过期时间
+  async updateExpire(key: string, second: number) {
+    return await this.redisClient.expire(key, second);
   }
 }
