@@ -20,7 +20,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ActionByIdDot } from 'src/common/dto/common.dto';
 import { DelActionByIdsDot, GetPageDto } from './dto/index.dto';
 
-@ApiTags('✅角色管理')
+@ApiTags('角色管理')
 @Controller('/sys/role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}

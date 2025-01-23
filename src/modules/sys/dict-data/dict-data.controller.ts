@@ -24,7 +24,7 @@ import {
   ListByType,
 } from './dto/index.dto';
 
-@ApiTags('✅字典数据管理')
+@ApiTags('字典数据管理')
 @Controller('/sys/dict-data')
 export class DictDataController {
   constructor(private readonly dictDataService: DictDataService) {}

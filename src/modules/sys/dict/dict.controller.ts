@@ -21,7 +21,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateDictDto } from './dto/create-dict.dto';
 import { UpdateDictDto } from './dto/update-dict.dto';
 
-@ApiTags('✅字典管理')
+@ApiTags('字典管理')
 @Controller('/sys/dict')
 export class DictController {
   constructor(private readonly dictService: DictService) {}
