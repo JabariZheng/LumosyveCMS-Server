@@ -11,12 +11,12 @@ export class LoginDto {
   @IsString()
   @ApiProperty({ description: '租户' })
   @IsNotEmpty({ message: '请检查租户' })
-  tenant: string;
+  corpCode: string;
 
   @IsString()
-  @ApiProperty({ description: '用户名' })
-  @IsNotEmpty({ message: '请检查用户名' })
-  username: string;
+  @ApiProperty({ description: '登录账号' })
+  @IsNotEmpty({ message: '请检查登录账号' })
+  loginCode: string;
 
   @IsString()
   @ApiProperty({ description: '密码' })

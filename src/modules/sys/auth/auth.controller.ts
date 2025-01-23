@@ -10,7 +10,7 @@ import { LoginDto } from './dto/auth.dto';
 import { AllowAnon } from 'src/common/decorators/allow-anon.decorator';
 
 @Controller('/sys/auth')
-@ApiTags('⭕️权限管理')
+@ApiTags('权限管理')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -30,42 +30,12 @@ export class AuthController {
   @Get('info')
   @ApiOperation({ summary: '获取当前登录用户信息' })
   getInfo(@Headers() headers: Record<string, string>) {
-    return this.authService.getInfo(headers['authorization']);
-  }
-  @Get('permissions')
-  @ApiOperation({ summary: '获取当前登录用户的权限信息' })
-  getPermissions(@Headers() headers: Record<string, string>) {
-    return this.authService.getPermissions(headers['authorization']);
+    return this.authService.getInfo(headers.authorization);
   }
 
-  @Get('menuRoute')
-  @ApiOperation({ summary: '获取当前登录用户的菜单信息' })
-  getMenuRoute(@Headers() headers: Record<string, string>) {
-    return this.authService.getMenuRoute(headers['authorization']);
-  }
-
-  // @Post()
-  // create(@Body() createAuthDto: CreateAuthDto) {
-  //   return this.authService.create(createAuthDto);
-  // }
-
-  // @Get()
-  // findAll() {
-  //   return this.authService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.authService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-  //   return this.authService.update(+id, updateAuthDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.authService.remove(+id);
+  // @Get('token')
+  // @ApiOperation({ summary: '刷新token' })
+  // refreshToken(@Headers() headers: Record<string, string>) {
+  //   return this.authService.refreshToken(headers.authorization);
   // }
 }
