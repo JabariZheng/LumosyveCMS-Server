@@ -6,6 +6,8 @@
 
 import * as moment from 'moment';
 import SnowflakeID from './snowflake';
+import { FindManyOptions, Repository } from 'typeorm';
+import { plainToInstance } from 'class-transformer';
 
 export const getControllerName = (__dirname) => {
   return __dirname.split('/modules')[1];
@@ -109,4 +111,53 @@ export function extractPathAfterModules(path) {
     return path.substring(modulesIndex);
   }
   return '找不到路径';
+}
+
+/**
+ * 通用查询数据库
+ */
+export class CommonQueryRepository {
+  constructor(private readonly repository: Repository<any>) {}
+
+  /**
+   * 查询和总数
+   * @param options 查询条件
+   * @param targetClass 对应的Entity
+   * @returns 【查询结果，总数】
+   */
+  public async queryCount<T>(
+    options: any,
+    targetClass: new (...args: any[]) => T,
+  ): Promise<[T[], number]> {
+    const repositoryOptions: FindManyOptions<any> = {
+      order: { updateDate: 'DESC' },
+      ...options,
+    };
+    const result: [T[], number] = await this.repository.findAndCount(
+      repositoryOptions,
+    );
+    const data: T[] = plainToInstance(targetClass, result[0], {
+      enableImplicitConversion: true,
+    });
+    return [data, result[1]];
+  }
+
+  /**
+   * 查询一个
+   * @param options 查询条件
+   * @param targetClass 对应的Entity
+   * @returns 查询结果
+   */
+  public async queryOne<T>(
+    options: any,
+    targetClass: new (...args: any[]) => T,
+  ): Promise<T> {
+    let result = await this.repository.findOne({ where: options });
+    result = plainToInstance(
+      targetClass,
+      { ...result },
+      { enableImplicitConversion: true },
+    );
+    return result;
+  }
 }
