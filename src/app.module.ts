@@ -12,7 +12,7 @@ import {
 import { AppController } from './app.controller';
 // import { LoggerMiddleware } from './middleware/log.middleware';
 import { LoginMiddleware } from './middleware/login.middleware';
-import { UserModule } from './modules/sys/user/user.module';
+// import { UserModule } from './modules/sys/user/user.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
@@ -21,15 +21,15 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './modules/sys/auth/auth.module';
-import { TenantModule } from './modules/sys/tenant/tenant.module';
 import { JwtAuthGuard } from './common/guards/auth.guard';
-import { ViewsModule } from './modules/sys/views/views.module';
+// import { ViewsModule } from './modules/sys/views/views.module';
 import { DictModule } from './modules/sys/dict/dict.module';
 import { DictDataModule } from './modules/sys/dict-data/dict-data.module';
-import { MenuModule } from './modules/sys/menu/menu.module';
+// import { MenuModule } from './modules/sys/menu/menu.module';
 import { RoleModule } from './modules/sys/role/role.module';
 import { join } from 'path';
 import { UploadImagesModule } from './modules/sys/upload-images/upload-images.module';
+import { CorpModule } from './modules/sys/corp/corp.module';
 
 @Module({
   imports: [
@@ -61,14 +61,15 @@ import { UploadImagesModule } from './modules/sys/upload-images/upload-images.mo
     }),
     // 常规模块
     AuthModule,
-    TenantModule,
-    UserModule,
+    // UserModule,
     // ViewsModule,
     DictModule,
     DictDataModule,
-    MenuModule,
+    // MenuModule,
     RoleModule,
     UploadImagesModule,
+    CorpModule,
+    // CorpModule,
   ],
   controllers: [AppController],
   providers: [
