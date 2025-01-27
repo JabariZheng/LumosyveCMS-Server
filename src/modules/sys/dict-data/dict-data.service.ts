@@ -96,7 +96,11 @@ export class DictDataService {
     // }
     // const auUserId = this.authService.validToken(authorization);
     // const currentUser = await this.cacheService.get(`user_${auUserId}`);
-    if (createDictDatumDto.sort === undefined) {
+    if (
+      createDictDatumDto.sort + '' === '' ||
+      createDictDatumDto.sort === null ||
+      createDictDatumDto.sort === undefined
+    ) {
       const queryResult: [DictDatum[], number] =
         await this.queryRepository.queryCount(
           {
@@ -224,7 +228,11 @@ export class DictDataService {
     // const auUserId = this.authService.validToken(authorization);
     // const currentUser = await this.cacheService.get(`user_${auUserId}`);
 
-    if (updateDictDatumDto.sort === undefined) {
+    if (
+      updateDictDatumDto.sort + '' === '' ||
+      updateDictDatumDto.sort === null ||
+      updateDictDatumDto.sort === undefined
+    ) {
       const queryResult: [DictDatum[], number] =
         await this.queryRepository.queryCount(
           {
@@ -235,7 +243,8 @@ export class DictDataService {
           },
           DictDatum,
         );
-      updateDictDatumDto.sort = queryResult[1] + 1;
+      // TODO 按照id排序的最后一条数据的sort+1，如果没有，则不需要+1
+      updateDictDatumDto.sort = queryResult[1];
     }
     const newData = {
       // ...instanceToPlain(result),
