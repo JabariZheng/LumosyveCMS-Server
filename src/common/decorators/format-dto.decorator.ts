@@ -47,7 +47,7 @@ export const FormatDefaultPagination = (): MethodDecorator => {
           ...dto,
           pageNo: dto.pageNo ? +dto.pageNo : 1,
           pageSize: dto.pageSize ? +dto.pageSize : 15,
-          status: dto.status || '0',
+          // status: dto.status || '0',
         };
       }
       return originalMethod.apply(this, args);
