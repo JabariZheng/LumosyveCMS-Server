@@ -11,11 +11,11 @@ import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DictDatum } from './entities/dict-datum.entity';
-import { FindManyOptions, Like, Repository } from 'typeorm';
+import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
-import { snowflakeID } from 'src/utils';
+import { CommonQueryRepository, snowflakeID } from 'src/utils';
 import { DictService } from '../dict/dict.service';
 import { CatchErrors } from 'src/common/decorators/catch-error.decorator';
 import {
@@ -26,6 +26,8 @@ import * as moment from 'moment';
 
 @Injectable()
 export class DictDataService {
+  private readonly queryRepository: CommonQueryRepository;
+
   constructor(
     @InjectRepository(DictDatum)
     private readonly dictDataRepository: Repository<DictDatum>,
@@ -34,7 +36,9 @@ export class DictDataService {
     private readonly cacheService: CacheService,
     @Inject(forwardRef(() => DictService))
     private readonly dictService: DictService,
-  ) {}
+  ) {
+    this.queryRepository = new CommonQueryRepository(dictDataRepository);
+  }
 
   /**
    * 新增
@@ -46,9 +50,12 @@ export class DictDataService {
   ) {
     // TODO: 未完成
     // 需要label、value同时唯一并且排除已删除状态的数据
-    // const getFingLabel = await this.findOne({
-    //   label: createDictDatumDto.dictLabel,
-    // });
+    // const getFingLabel = await this.queryRepository.queryOne(
+    //   {
+    //     label: createDictDatumDto.dictLabel,
+    //   },
+    //   DictDatum,
+    // );
     // const hasFindLabel = instanceToPlain(getFingLabel);
     // if (
     //   Object.keys(hasFindLabel).length > 0 &&
@@ -59,9 +66,12 @@ export class DictDataService {
     //     `已存在标签${createDictDatumDto.dictLabel}`,
     //   );
     // }
-    // const getFindValue = await this.findOne({
-    //   value: createDictDatumDto.dictValue,
-    // });
+    // const getFindValue = await this.queryRepository.queryOne(
+    //   {
+    //     value: createDictDatumDto.dictValue,
+    //   },
+    //   DictDatum,
+    // );
     // const hasFindValue = instanceToPlain(getFindValue);
     // if (
     //   Object.keys(hasFindValue).length > 0 &&
@@ -86,6 +96,19 @@ export class DictDataService {
     // }
     // const auUserId = this.authService.validToken(authorization);
     // const currentUser = await this.cacheService.get(`user_${auUserId}`);
+    if (createDictDatumDto.sort === undefined) {
+      const queryResult: [DictDatum[], number] =
+        await this.queryRepository.queryCount(
+          {
+            where: {
+              // status: In(['0', '2']),
+              dictType: createDictDatumDto.dictType,
+            },
+          },
+          DictDatum,
+        );
+      createDictDatumDto.sort = queryResult[1] + 1;
+    }
     const newData: DictDatum = {
       ...createDictDatumDto,
       status: createDictDatumDto.status || '0',
@@ -140,13 +163,6 @@ export class DictDataService {
       })
       .whereInIds(ids)
       .execute();
-
-    // let result = await this.findOne({ id: +id });
-    // result = instanceToPlain(result) as DictDatum;
-    // const auUserId = this.authService.validToken(authorization);
-    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
-    // result.updateBy = JSON.parse(currentUser).username;
-    // await this.dictDataRepository.save(result);
     return ResultData.ok({}, '操作成功');
   }
 
@@ -188,7 +204,10 @@ export class DictDataService {
         '请检查id',
       );
     }
-    const result = await this.findOne({ id: updateDictDatumDto.id });
+    const result = await this.queryRepository.queryOne(
+      { id: updateDictDatumDto.id },
+      DictDatum,
+    );
     if (!result) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
@@ -204,6 +223,20 @@ export class DictDataService {
     }
     // const auUserId = this.authService.validToken(authorization);
     // const currentUser = await this.cacheService.get(`user_${auUserId}`);
+
+    if (updateDictDatumDto.sort === undefined) {
+      const queryResult: [DictDatum[], number] =
+        await this.queryRepository.queryCount(
+          {
+            where: {
+              status: In(['0', '2']),
+              dictType: updateDictDatumDto.dictType,
+            },
+          },
+          DictDatum,
+        );
+      updateDictDatumDto.sort = queryResult[1] + 1;
+    }
     const newData = {
       // ...instanceToPlain(result),
       ...updateDictDatumDto,
@@ -222,18 +255,21 @@ export class DictDataService {
   @FormatEmptyParams()
   public async getPage(dto: GetPageDto): Promise<ResultData> {
     const where = {
-      status: dto.status,
+      status: In(dto.status ? [dto.status] : ['0', '2']),
       dictLabel: dto.dictLabel && Like(`%${dto.dictLabel}%`),
       dictValue: dto.dictValue && Like(`%${dto.dictValue}%`),
       isSys: dto.isSys,
       dictType: dto.dictType,
     };
-    const result: [DictDatum[], number] = await this.queryCount({
-      where,
-      order: { updateDate: 'DESC' },
-      skip: (dto.pageNo - 1) * dto.pageSize,
-      take: dto.pageSize,
-    });
+    const result: [DictDatum[], number] = await this.queryRepository.queryCount(
+      {
+        where,
+        order: { updateDate: 'DESC' },
+        skip: (dto.pageNo - 1) * dto.pageSize,
+        take: dto.pageSize,
+      },
+      DictDatum,
+    );
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
@@ -247,9 +283,12 @@ export class DictDataService {
    */
   @CatchErrors()
   async getList(): Promise<ResultData> {
-    const result: [DictDatum[], number] = await this.queryCount({
-      where: { status: '0' },
-    });
+    const result: [DictDatum[], number] = await this.queryRepository.queryCount(
+      {
+        where: { status: '0' },
+      },
+      DictDatum,
+    );
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
@@ -261,9 +300,12 @@ export class DictDataService {
     if (!type) {
       return ResultData.ok([]);
     }
-    const result: [DictDatum[], number] = await this.queryCount({
-      where: { status: '0', dictType: type },
-    });
+    const result: [DictDatum[], number] = await this.queryRepository.queryCount(
+      {
+        where: { status: In(['0', '2']), dictType: type },
+      },
+      DictDatum,
+    );
     // return ResultData.ok({
     //   list: instanceToPlain(result[0]),
     //   total: result[1],
@@ -275,18 +317,8 @@ export class DictDataService {
    * 详情
    */
   public async getInfo(id: number): Promise<ResultData> {
-    const result = await this.findOne({ id: +id });
+    const result = await this.queryRepository.queryOne({ id: +id }, DictDatum);
     return ResultData.ok(result ? instanceToPlain(result) : {});
-  }
-
-  public async findOne(opt: any): Promise<DictDatum> {
-    let result = await this.dictDataRepository.findOne({ where: opt });
-    result = plainToInstance(
-      DictDatum,
-      { ...result },
-      { enableImplicitConversion: true },
-    );
-    return result;
   }
 
   public async queryCount(options: any): Promise<[DictDatum[], number]> {

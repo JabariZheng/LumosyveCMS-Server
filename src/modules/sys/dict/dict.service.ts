@@ -9,11 +9,11 @@ import { UpdateDictDto } from './dto/update-dict.dto';
 import { DelActionByIdsDot, GetPageDto } from './dto/index.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dict } from './entities/dict.entity';
-import { FindManyOptions, Like, Repository } from 'typeorm';
+import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ResultData } from 'src/utils/result';
 import { ConfigService } from '@nestjs/config';
-import { snowflakeID } from 'src/utils';
+import { CommonQueryRepository, snowflakeID } from 'src/utils';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { DictDataService } from '../dict-data/dict-data.service';
@@ -26,6 +26,8 @@ import * as moment from 'moment';
 
 @Injectable()
 export class DictService {
+  private readonly queryRepository: CommonQueryRepository;
+
   constructor(
     @InjectRepository(Dict)
     private readonly dictRepository: Repository<Dict>,
@@ -34,7 +36,9 @@ export class DictService {
     private readonly cacheService: CacheService,
     @Inject(forwardRef(() => DictDataService))
     private readonly dictDataService: DictDataService,
-  ) {}
+  ) {
+    this.queryRepository = new CommonQueryRepository(dictRepository);
+  }
 
   /**
    * 新增
@@ -45,9 +49,12 @@ export class DictService {
     authorization: string,
   ): Promise<ResultData> {
     // // 需要name、type同时唯一并且排除已删除状态的数据
-    // const getFingName = await this.findOne({
-    //   name: createDictDto.name,
-    // });
+    // const getFingName = await this.queryRepository.queryOne(
+    //   {
+    //     name: createDictDto.name,
+    //   },
+    //   Dict,
+    // );
     // const hasFindName = instanceToPlain(getFingName);
     // if (
     //   Object.keys(hasFindName).length > 0 &&
@@ -58,9 +65,12 @@ export class DictService {
     //     `已存在名称${createDictDto.name}`,
     //   );
     // }
-    // const getFindType = await this.findOne({
-    //   type: createDictDto.type,
-    // });
+    // const getFindType = await this.queryRepository.queryOne(
+    //   {
+    //     type: createDictDto.type,
+    //   },
+    //   Dict,
+    // );
     // const hasFindType = instanceToPlain(getFindType);
     // if (
     //   Object.keys(hasFindType).length > 0 &&
@@ -120,19 +130,6 @@ export class DictService {
       })
       .whereInIds(ids)
       .execute();
-
-    // 字典类型删除
-    // let result: Dict = await this.findOne({ id: +id });
-    // result = instanceToPlain(result) as Dict;
-    // result = {
-    //   ...result,
-    //   updateDate: new Date(),
-    //   updateBy: JSON.parse(currentUser).username,
-    // };
-    // await this.dictRepository.save(result);
-    // 字典数据删除
-    // await this.dictDataService.removeByDictType(result.type, authorization);
-    // return ResultData.ok(result, '操作成功');
     return ResultData.ok({}, '操作成功');
   }
 
@@ -147,18 +144,14 @@ export class DictService {
         '请检查id',
       );
     }
-    const result = await this.findOne({ id: updateDictDto.id });
+    const result = await this.queryRepository.queryOne(
+      { id: updateDictDto.id },
+      Dict,
+    );
     if (!result) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
         `未查询到${updateDictDto.id}，请检查id`,
-      );
-    }
-    const resultPlain = instanceToPlain(result);
-    if (resultPlain.status !== '0') {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `该条数据为非可用状态`,
       );
     }
     // const auUserId = this.authService.validToken(authorization);
@@ -182,16 +175,19 @@ export class DictService {
   @FormatEmptyParams()
   public async getPage(dto: GetPageDto): Promise<ResultData> {
     const where = {
-      status: dto.status,
+      status: In(dto.status ? [dto.status] : ['0', '2']),
       dictName: dto.dictName && Like(`%${dto.dictName}%`),
       dictType: dto.dictType && Like(`%${dto.dictType}%`),
     };
-    const result: [Dict[], number] = await this.queryCount({
-      where,
-      order: { updateDate: 'DESC' },
-      skip: (dto.pageNo - 1) * dto.pageSize,
-      take: dto.pageSize,
-    });
+    const result: [Dict[], number] = await this.queryRepository.queryCount(
+      {
+        where,
+        order: { updateDate: 'DESC' },
+        skip: (dto.pageNo - 1) * dto.pageSize,
+        take: dto.pageSize,
+      },
+      Dict,
+    );
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
@@ -205,9 +201,12 @@ export class DictService {
    */
   @CatchErrors()
   public async getList(): Promise<ResultData> {
-    const result: [Dict[], number] = await this.queryCount({
-      where: { status: '0' },
-    });
+    const result: [Dict[], number] = await this.queryRepository.queryCount(
+      {
+        where: { status: In(['0', '2']) },
+      },
+      Dict,
+    );
     return ResultData.ok({
       list: instanceToPlain(result[0]),
       total: result[1],
@@ -219,35 +218,7 @@ export class DictService {
    */
   @CatchErrors()
   public async getInfo(id: string): Promise<ResultData> {
-    const result = await this.findOne({ id: +id });
+    const result = await this.queryRepository.queryOne({ id: +id }, Dict);
     return ResultData.ok(result ? instanceToPlain(result) : {});
-  }
-
-  findAll() {
-    return `This action returns all dict`;
-  }
-
-  public async findOne(opt: any): Promise<Dict> {
-    let result = await this.dictRepository.findOne({ where: opt });
-    result = plainToInstance(
-      Dict,
-      { ...result },
-      { enableImplicitConversion: true },
-    );
-    return result;
-  }
-
-  public async queryCount(options: any): Promise<[Dict[], number]> {
-    const repositoryOptions: FindManyOptions<Dict> = {
-      order: { updateDate: 'DESC' },
-      ...options,
-    };
-    const result: [Dict[], number] = await this.dictRepository.findAndCount(
-      repositoryOptions,
-    );
-    const data: Dict[] = plainToInstance(Dict, result[0], {
-      enableImplicitConversion: true,
-    });
-    return [data, result[1]];
   }
 }
