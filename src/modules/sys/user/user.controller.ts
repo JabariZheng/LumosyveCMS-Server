@@ -22,6 +22,7 @@ import {
   DelActionByIdsDot,
   GetPageDto,
 } from './dto/user.dto';
+import { ActionByIdDot } from 'src/common/dto/common.dto';
 
 @Controller('/sys/user')
 @ApiTags('用户管理')
@@ -52,6 +53,18 @@ export class UserController {
     return this.userService.update(updateUserDto, headers.authorization);
   }
 
+  @Put('rstPsd')
+  @ApiOperation({ summary: '重置密码' })
+  resetPassword(
+    @Body() updateUserPsdDto: ActionByIdDot,
+    @Headers() headers: any,
+  ) {
+    return this.userService.resetPassword(
+      updateUserPsdDto,
+      headers.authorization,
+    );
+  }
+
   @Get('page')
   @ApiOperation({ summary: '分页' })
   getPage(@Query() page: GetPageDto) {
@@ -70,9 +83,9 @@ export class UserController {
     return this.userService.getInfo(query);
   }
 
-  // @Get('onlines')
-  // @ApiOperation({ summary: '获取在线人数' })
-  // getOnlineUsers() {
-  //   return this.userService.getOnlineUsers();
-  // }
+  @Get('onlines')
+  @ApiOperation({ summary: '获取在线人数' })
+  getOnlineUsers() {
+    return this.userService.getOnlineUsers();
+  }
 }

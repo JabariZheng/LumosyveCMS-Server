@@ -8,7 +8,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { FindManyOptions, Like, Repository } from 'typeorm';
+import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { ResultData } from 'src/utils/result';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
@@ -26,6 +26,7 @@ import {
   FormatEmptyParams,
 } from 'src/common/decorators/format-dto.decorator';
 import * as moment from 'moment';
+import { ActionByIdDot } from 'src/common/dto/common.dto';
 
 @Injectable()
 export class UserService {
@@ -49,7 +50,16 @@ export class UserService {
     createUserDto: CreateUserDto,
     authorization: string,
   ): Promise<ResultData> {
-    // TODO 需要唯一并且排除已删除状态的数据
+    const getOne = await this.queryRepository.queryOne(
+      { userCode: createUserDto.userCode, status: In(['0', '2', '3']) },
+      User,
+    );
+    if (getOne) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `用户编码${createUserDto.userCode}已存在`,
+      );
+    }
 
     // const auUserId = this.authService.validToken(authorization);
     // const currentUser = await this.cacheService.get(`user_${auUserId}`);
@@ -145,13 +155,6 @@ export class UserService {
         `未查询到${updateUserDto.id}，请检查id`,
       );
     }
-    const resultPlain = instanceToPlain(result);
-    if (resultPlain.status !== '0') {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `该条数据为非可用状态`,
-      );
-    }
     // const auUserId = this.authService.validToken(authorization);
     // const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData = {
@@ -185,6 +188,45 @@ export class UserService {
   }
 
   /**
+   * 重置密码
+   */
+  @CatchErrors()
+  public async resetPassword(
+    resetPasswordDto: ActionByIdDot,
+    authorization: string,
+  ): Promise<ResultData> {
+    if (!resetPasswordDto.id) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        '请检查id',
+      );
+    }
+    const result: User = await this.queryRepository.queryOne(
+      { id: resetPasswordDto.id },
+      User,
+    );
+    if (!result) {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `未查询到${resetPasswordDto.id}，请检查id`,
+      );
+    }
+    // const auUserId = this.authService.validToken(authorization);
+    // const currentUser = await this.cacheService.get(`user_${auUserId}`);
+
+    await this.userRepository.update(
+      { id: resetPasswordDto.id },
+      {
+        password: '1234567890',
+        // updateBy: JSON.parse(currentUser).username || 'system',
+        updateBy: 'system',
+        updateDate: new Date(),
+      },
+    );
+    return ResultData.ok({}, '操作成功');
+  }
+
+  /**
    * 分页
    */
   @CatchErrors()
@@ -195,7 +237,7 @@ export class UserService {
     excludePsd = true,
   ): Promise<ResultData> {
     const where = {
-      status: dto.status,
+      status: In(dto.status ? [dto.status] : ['0', '2']),
       userCode: dto.userCode && Like(`%${dto.userCode}%`),
       loginCode: dto.loginCode && Like(`%${dto.loginCode}%`),
       userName: dto.userName && Like(`%${dto.userName}%`),

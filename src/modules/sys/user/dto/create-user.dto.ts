@@ -152,8 +152,7 @@ export class CreateUserDto {
     type: String,
     required: true,
   })
-  @IsString()
-  @IsNotEmpty({ message: '请输入状态' })
+  // @IsNotEmpty({ message: '请输入状态' })
   status: string;
 
   // @ApiProperty({ description: '创建者', type: String, required: false })
