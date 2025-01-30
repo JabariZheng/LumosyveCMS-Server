@@ -169,7 +169,7 @@ export class AuthService {
       info: { ...cacheData, password: undefined },
       resources: [],
       permissions: [],
-      roles: {},
+      roles: [],
     });
   }
 
