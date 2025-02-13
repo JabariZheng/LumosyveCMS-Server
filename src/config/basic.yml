@@ -49,4 +49,4 @@ errorCode:
 # 全局
 common:
   # 白名单
-  whiteList: ['/admin-api/sys/auth/login']
+  whiteList: ['.jpg', '/favicon.ico', '/sys/auth/login']
