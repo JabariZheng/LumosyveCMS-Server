@@ -1,7 +1,7 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-01-11 20:20:15
- * @LastEditTime: 2025-01-19 02:21:18
+ * @LastEditTime: 2025-02-14 04:00:21
  * @Description: corp.service
  */
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
@@ -14,7 +14,7 @@ import {
   FormatEmptyParams,
 } from 'src/common/decorators/format-dto.decorator';
 import { ResultData } from 'src/utils/result';
-import { FindManyOptions, Like, Repository } from 'typeorm';
+import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import { Corp } from './entities/corp.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { instanceToPlain } from 'class-transformer';
@@ -146,7 +146,7 @@ export class CorpService {
     const where = {
       corpCode: dto.corpCode && Like(`%${dto.corpCode}%`),
       corpName: dto.corpName && Like(`%${dto.corpName}%`),
-      status: dto.status,
+      status: In(dto.status ? [dto.status] : ['0', '2']),
     };
     const result: [Corp[], number] = await this.queryRepository.queryCount(
       {
