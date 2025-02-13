@@ -38,7 +38,12 @@ export class AuthService {
   /**
    * 生成token
    */
-  public genToken(payload: { id: string; userName: string }): CreateTokenDto {
+  public genToken(payload: {
+    id: string;
+    userName: string;
+    corpName: string;
+    corpCode: string;
+  }): CreateTokenDto {
     const token = this.jwtService.sign(payload, {
       expiresIn: this.configService.get('jwt.expiresIn'),
     });
@@ -110,6 +115,8 @@ export class AuthService {
     const data = this.genToken({
       id: userData.id + '',
       userName: userData.userName,
+      corpCode: userData.corpCode,
+      corpName: userData.corpName,
     });
     // 写入redis，过期时间和jwt的过期时间同步
     await this.cacheService.set(
