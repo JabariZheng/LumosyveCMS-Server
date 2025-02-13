@@ -24,7 +24,8 @@ export class LoginMiddleware implements NestMiddleware {
   ) {}
   async use(req: any, res: any, next: (error?: any) => void) {
     const WHITE_LIST = this.configService.get('common.whiteList');
-    if (WHITE_LIST.includes(req.url)) {
+    const isPassLogin = WHITE_LIST.some((item) => req.url.includes(item));
+    if (isPassLogin) {
       next();
       return;
     }
