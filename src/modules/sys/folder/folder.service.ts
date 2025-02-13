@@ -1,7 +1,7 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-02-14 01:24:05
- * @LastEditTime: 2025-02-14 02:46:48
+ * @LastEditTime: 2025-02-14 03:37:33
  * @Description: service.folder
  */
 import { Injectable } from '@nestjs/common';
@@ -97,5 +97,20 @@ export class FolderService {
 
   remove(id: number) {
     return `This action removes a #${id} folder`;
+  }
+
+  /**
+   * 详情
+   */
+  @CatchErrors()
+  public async getInfo(folderId: string): Promise<ResultData> {
+    if (!folderId) {
+      return ResultData.ok({});
+    }
+    const result = await this.queryRepository.queryOne(
+      { id: folderId },
+      FileFolder,
+    );
+    return ResultData.ok(result ? instanceToPlain(result) : {});
   }
 }

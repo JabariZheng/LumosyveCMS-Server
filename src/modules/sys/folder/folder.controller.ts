@@ -1,7 +1,7 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-02-14 01:24:05
- * @LastEditTime: 2025-02-14 02:15:52
+ * @LastEditTime: 2025-02-14 03:37:53
  * @Description: controller.folder
  */
 import {
@@ -58,6 +58,6 @@ export class FolderController {
   @Get('info')
   @ApiOperation({ summary: '详情' })
   getInfo(@Query() detailDto: ActionByIdDot) {
-    // return this.folderService.getInfo(detailDto.id);
+    return this.folderService.getInfo(detailDto.id);
   }
 }
