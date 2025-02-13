@@ -43,7 +43,8 @@ export class UploadImagesController {
     return ResultData.ok({
       name: file.filename,
       size: file.size,
-      url: `http://${host}:${port}/${file.path}`,
+      // 因为使用了动态创建路径，所以这里的路径是绝对路径，需要replace
+      url: `http://${host}:${port}${file.path.replace(process.cwd(), '')}`,
     });
   }
 }
