@@ -50,4 +50,5 @@ errorCode:
 # 全局
 common:
   # 白名单
-  whiteList: ['.jpg', '.jpeg', '/favicon.ico', '/sys/auth/login']
+  whiteList:
+    ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '/favicon.ico', '/sys/auth/login']
