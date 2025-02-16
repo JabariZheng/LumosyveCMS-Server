@@ -1,7 +1,7 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-02-14 01:24:05
- * @LastEditTime: 2025-02-16 16:33:37
+ * @LastEditTime: 2025-02-17 03:35:02
  * @Description: controller.folder
  */
 import {
@@ -34,13 +34,13 @@ export class FolderController {
   @Delete('delete')
   @ApiOperation({ summary: '删除' })
   remove(@Body() query: DelActionByIdsDot, @Headers() headers: any) {
-    // return this.folderService.remove(query, headers.authorization);
+    return this.folderService.remove(query, headers.authorization);
   }
 
   @Put('update')
   @ApiOperation({ summary: '更新' })
   update(@Body() updateDictDto: UpdateFolderDto, @Headers() headers: any) {
-    // return this.folderService.update(updateDictDto, headers.authorization);
+    return this.folderService.update(updateDictDto, headers.authorization);
   }
 
   @Get('page')
@@ -65,5 +65,11 @@ export class FolderController {
   @ApiOperation({ summary: '详情' })
   getInfo(@Query() detailDto: ActionByIdDot) {
     return this.folderService.getInfo(detailDto.id);
+  }
+
+  @Get('files')
+  @ApiOperation({ summary: '文件夹内文件' })
+  getFolderFiles(@Query() data: ActionByIdDot) {
+    return this.folderService.getFolderFiles(data.id);
   }
 }

@@ -180,10 +180,10 @@ export class FilesService {
    * 列表
    */
   @CatchErrors()
-  public async getList(): Promise<ResultData> {
+  public async getList(params = {}): Promise<ResultData> {
     const result: [Files[], number] = await this.queryRepository.queryCount(
       {
-        where: { status: In(['0', '2']) },
+        where: { status: In(['0', '2']), ...params },
       },
       Files,
     );
