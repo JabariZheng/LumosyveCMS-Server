@@ -85,7 +85,6 @@ export class AuthService {
     const { data: corpData } = await this.corpService.getInfo(
       loginParams.corpCode,
     );
-
     if (Object.keys(corpData || {}).length === 0) {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
@@ -98,10 +97,16 @@ export class AuthService {
       false,
     );
 
-    if (Object.keys(userData || {}).length === 0) {
+    if (Object.keys(userData || {}).length === 0 || userData.status === '1') {
       return ResultData.fail(
         this.configService.get('errorCode.valid'),
         `用户${loginParams.loginCode}不存在`,
+      );
+    }
+    if (userData.status === '2') {
+      return ResultData.fail(
+        this.configService.get('errorCode.valid'),
+        `用户${loginParams.loginCode}已被禁用，请联系管理员`,
       );
     }
     // 匹配密码
