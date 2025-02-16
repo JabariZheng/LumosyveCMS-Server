@@ -1,7 +1,7 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-02-14 00:51:39
- * @LastEditTime: 2025-02-14 04:00:15
+ * @LastEditTime: 2025-02-16 17:04:04
  * @Description: service.files
  */
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
@@ -157,13 +157,42 @@ export class FilesService {
       },
       Files,
     );
+
+    const filePrefixHost = this.configService.get('app.fileServerHost');
+    const { data: folderData } = await this.folderService.getList();
+
     return ResultData.ok({
-      list: instanceToPlain(result[0]),
+      list: instanceToPlain(result[0]).map((item) => {
+        const getFind = folderData.list.find(
+          (folder) => item.folderId === folder.id,
+        );
+        item.folderName = getFind.folderName;
+        item.filePath = `${filePrefixHost}${item.filePath}`;
+        return item;
+      }),
       total: result[1],
       pageNo: dto.pageNo,
       pageSize: dto.pageSize,
     });
   }
+
+  /**
+   * 列表
+   */
+  @CatchErrors()
+  public async getList(): Promise<ResultData> {
+    const result: [Files[], number] = await this.queryRepository.queryCount(
+      {
+        where: { status: In(['0', '2']) },
+      },
+      Files,
+    );
+    return ResultData.ok({
+      list: instanceToPlain(result[0]),
+      total: result[1],
+    });
+  }
+
   /**
    * 详情
    */

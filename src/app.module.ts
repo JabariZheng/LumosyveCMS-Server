@@ -9,7 +9,7 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
-import { AppController } from './app.controller';
+// import { AppController } from './app.controller';
 // import { LoggerMiddleware } from './middleware/log.middleware';
 import { LoginMiddleware } from './middleware/login.middleware';
 // import { UserModule } from './modules/sys/user/user.module';
@@ -29,6 +29,8 @@ import { RoleModule } from './modules/sys/role/role.module';
 import { join } from 'path';
 import { UploadImagesModule } from './modules/sys/upload-images/upload-images.module';
 import { CorpModule } from './modules/sys/corp/corp.module';
+import { FilesModule } from './modules/sys/files/files.module';
+import { FolderModule } from './modules/sys/folder/folder.module';
 
 @Module({
   imports: [
@@ -68,9 +70,12 @@ import { CorpModule } from './modules/sys/corp/corp.module';
     RoleModule,
     UploadImagesModule,
     CorpModule,
+    FilesModule,
+    FolderModule,
     // CorpModule,
   ],
-  controllers: [AppController],
+  // controllers: [AppController],
+  controllers: [],
   providers: [
     {
       provide: APP_GUARD,

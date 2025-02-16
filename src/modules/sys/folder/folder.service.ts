@@ -1,7 +1,7 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-02-14 01:24:05
- * @LastEditTime: 2025-02-14 03:37:33
+ * @LastEditTime: 2025-02-16 16:33:30
  * @Description: service.folder
  */
 import { Injectable } from '@nestjs/common';
@@ -97,6 +97,39 @@ export class FolderService {
 
   remove(id: number) {
     return `This action removes a #${id} folder`;
+  }
+
+  /**
+   * 列表
+   */
+  @CatchErrors()
+  public async getList(): Promise<ResultData> {
+    const result: [FileFolder[], number] =
+      await this.queryRepository.queryCount(
+        {
+          where: { status: In(['0', '2']) },
+        },
+        FileFolder,
+      );
+    return ResultData.ok({
+      list: instanceToPlain(result[0]),
+      total: result[1],
+    });
+  }
+
+  /**
+   * 列表
+   */
+  @CatchErrors()
+  public async getTreeData(): Promise<ResultData> {
+    const result: [FileFolder[], number] =
+      await this.queryRepository.queryCount(
+        {
+          where: { status: In(['0', '2']) },
+        },
+        FileFolder,
+      );
+    return ResultData.ok(instanceToPlain(result[0]));
   }
 
   /**

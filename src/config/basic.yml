@@ -6,6 +6,7 @@ app:
   port: 7001
   permission: true
   staticPath: 'public/upload'
+  fileServerHost: 'http://localhost:7001'
 # 数据库配置
 db:
   mysql:
@@ -49,4 +50,4 @@ errorCode:
 # 全局
 common:
   # 白名单
-  whiteList: ['.jpg', '/favicon.ico', '/sys/auth/login']
+  whiteList: ['.jpg', '.jpeg', '/favicon.ico', '/sys/auth/login']

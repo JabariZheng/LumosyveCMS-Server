@@ -1,7 +1,7 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-02-14 01:24:05
- * @LastEditTime: 2025-02-14 03:37:53
+ * @LastEditTime: 2025-02-16 16:33:37
  * @Description: controller.folder
  */
 import {
@@ -52,7 +52,13 @@ export class FolderController {
   @Get('list')
   @ApiOperation({ summary: '列表' })
   getList() {
-    // return this.folderService.getList();
+    return this.folderService.getList();
+  }
+
+  @Get('treeData')
+  @ApiOperation({ summary: '树' })
+  getTree() {
+    return this.folderService.getTreeData();
   }
 
   @Get('info')

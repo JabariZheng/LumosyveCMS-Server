@@ -1,7 +1,7 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-02-14 00:51:39
- * @LastEditTime: 2025-02-14 03:58:38
+ * @LastEditTime: 2025-02-16 16:39:42
  * @Description: controller.files
  */
 import {
@@ -79,6 +79,12 @@ export class FilesController {
   @ApiOperation({ summary: '分页' })
   getPage(@Query() page: GetPageDto) {
     return this.filesService.getPage(page);
+  }
+
+  @Get('list')
+  @ApiOperation({ summary: '列表' })
+  getList() {
+    return this.filesService.getList();
   }
 
   @Get('info')
