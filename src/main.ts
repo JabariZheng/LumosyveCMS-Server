@@ -32,7 +32,7 @@ async function bootstrap() {
   const { prefix, host, port } = configService.get('app');
 
   // 设置api访问前缀
-  app.setGlobalPrefix(prefix);
+  // app.setGlobalPrefix(prefix);
   // 全局Log
   app.use(LoggerMiddleware);
   // 设置校验pipe
@@ -51,7 +51,8 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, swaggerOptions);
-  SwaggerModule.setup(`${prefix}/docs`, app, document);
+  // SwaggerModule.setup(`${prefix}/docs`, app, document);
+  SwaggerModule.setup(`/docs`, app, document);
 
   await app.listen(port);
 
@@ -59,14 +60,14 @@ async function bootstrap() {
     Chalk.green(`Nest-Admin 服务启动成功     `),
     '\n',
     Chalk.green('服务地址                    '),
-    `http://${host}:${port}${prefix}/`,
+    `http://${host}:${port}${''}/`,
     '\n',
     Chalk.green('swagger 文档地址            '),
-    `http://${host}:${port}${prefix}/docs/`,
+    `http://${host}:${port}${''}/docs/`,
     '\n',
     // 注意：swagger3访问openapi-json的方式不一样了
     Chalk.green('swagger openapi-json访问地址'),
-    `http://${host}:${port}${prefix}/docs-json`,
+    `http://${host}:${port}${''}/docs-json`,
   );
 }
 

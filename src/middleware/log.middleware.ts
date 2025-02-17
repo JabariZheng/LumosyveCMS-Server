@@ -17,18 +17,17 @@ export function LoggerMiddleware(
     return;
   }
   const statusCode = res.statusCode;
-  console.log('req.params', req.params);
   const logFormat = `
       ##############################################################################################################
       RequestOriginal: ${req.originalUrl}
       Method: ${req.method}
       IP: ${req.ip}
       StatusCode: ${statusCode}
-      Params: ${JSON.stringify(req.params || {})}
-      Query: ${JSON.stringify(req.query || {})}
-      Body: ${JSON.stringify(req.body || {})}
       ##############################################################################################################
-    `;
+      `;
+  // Params: ${JSON.stringify(req.params || {})}
+  // Query: ${JSON.stringify(req.query || {})}
+  // Body: ${JSON.stringify(req.body || {})}
   next();
 
   if (statusCode >= 500) {

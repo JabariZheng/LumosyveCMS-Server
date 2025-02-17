@@ -8,7 +8,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
-import { FindManyOptions, Like, Repository } from 'typeorm';
+import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from 'src/modules/cache/cache.service';
@@ -136,13 +136,6 @@ export class RoleService {
       );
     }
 
-    if (instanceToPlain(result).status !== '0') {
-      return ResultData.fail(
-        this.configService.get('errorCode.valid'),
-        `该条数据为非可用状态`,
-      );
-    }
-
     // const auUserId = this.authService.validToken(authorization);
     // const currentUser = await this.cacheService.get(`user_${auUserId}`);
     const newData = {
@@ -175,7 +168,7 @@ export class RoleService {
       roleName: dto.roleName && Like(`%${dto.roleName}%`),
       isSys: dto.isSys && Like(`%${dto.isSys}%`),
       userType: dto.userType && Like(`%${dto.userType}%`),
-      status: dto.status,
+      status: In(dto.status ? [dto.status] : ['0', '2']),
     };
     const result: [Role[], number] = await this.queryRepository.queryCount(
       {

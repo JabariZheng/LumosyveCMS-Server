@@ -30,9 +30,9 @@ export class CreateRoleDto {
   desktopUrl: string;
 
   @ApiProperty({ description: '状态（0正常 1删除 2停用）' })
-  @IsString()
-  @IsNotEmpty({ message: '请输入状态' })
-  status: string;
+  // @IsString()
+  // @IsNotEmpty({ message: '请输入状态' })
+  status?: string;
 
   @ApiProperty({ description: '备注信息' })
   remarks: string;

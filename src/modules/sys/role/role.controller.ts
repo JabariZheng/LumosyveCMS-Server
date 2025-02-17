@@ -42,6 +42,11 @@ export class RoleController {
   update(@Body() updateDto: UpdateRoleDto, @Headers() headers: any) {
     return this.roleService.update(updateDto, headers.authorization);
   }
+  @Put('permissions')
+  @ApiOperation({ summary: '资源绑定' })
+  bindMenus(@Body() updateDto: UpdateRoleDto, @Headers() headers: any) {
+    return this.roleService.update(updateDto, headers.authorization);
+  }
 
   @Get('page')
   @ApiOperation({ summary: '分页' })

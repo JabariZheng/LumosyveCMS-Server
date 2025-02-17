@@ -3,7 +3,13 @@
  * @Date: 2023-10-28 22:03:56
  * @Description: uploadImages.controller
  */
-import { Controller, Post, UploadedFile, UploadedFiles } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UploadedFile,
+  UploadedFiles,
+} from '@nestjs/common';
 import { UploadImagesService } from './upload-images.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
@@ -12,6 +18,7 @@ import {
 } from 'src/common/decorators/upload-img.decorator';
 import { ResultData } from 'src/utils/result';
 import { CatchErrors } from 'src/common/decorators/catch-error.decorator';
+import { snowflakeID } from 'src/utils';
 
 @ApiTags('图片上传')
 @Controller('/sys/upload-images')
@@ -43,6 +50,7 @@ export class UploadImagesController {
     return ResultData.ok({
       name: file.filename,
       size: file.size,
+      id: snowflakeID.NextId() + '',
       // 因为使用了动态创建路径，所以这里的路径是绝对路径，需要replace
       url: `http://${host}:${port}${file.path.replace(process.cwd(), '')}`,
     });
