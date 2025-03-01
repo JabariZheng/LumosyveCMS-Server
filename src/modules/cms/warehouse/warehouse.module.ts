@@ -9,7 +9,7 @@ import { WarehouseService } from './warehouse.service';
 import { WarehouseController } from './warehouse.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Warehouse } from './entities/warehouse.entity';
-import { AuthModule } from '../auth/auth.module';
+import { AuthModule } from '../../sys/auth/auth.module';
 
 const EntityFeatures = TypeOrmModule.forFeature([Warehouse]);
 

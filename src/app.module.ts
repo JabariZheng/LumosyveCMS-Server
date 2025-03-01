@@ -31,6 +31,8 @@ import { UploadImagesModule } from './modules/sys/upload-images/upload-images.mo
 import { CorpModule } from './modules/sys/corp/corp.module';
 import { FilesModule } from './modules/sys/files/files.module';
 import { FolderModule } from './modules/sys/folder/folder.module';
+import { WarehouseModule } from './modules/cms/warehouse/warehouse.module';
+import { GoodsModule } from './modules/cms/goods/goods.module';
 
 @Module({
   imports: [
@@ -72,6 +74,8 @@ import { FolderModule } from './modules/sys/folder/folder.module';
     CorpModule,
     FilesModule,
     FolderModule,
+    WarehouseModule,
+    GoodsModule,
     // CorpModule,
   ],
   // controllers: [AppController],

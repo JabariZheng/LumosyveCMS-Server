@@ -6,7 +6,7 @@ import { CommonQueryRepository, snowflakeID } from 'src/utils';
 import { Warehouse } from './entities/warehouse.entity';
 import { In, Like, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../sys/auth/auth.service';
 import { CatchErrors } from 'src/common/decorators/catch-error.decorator';
 import { CacheService } from 'src/modules/cache/cache.service';
 import { ResultData } from 'src/utils/result';
