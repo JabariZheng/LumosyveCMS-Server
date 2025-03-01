@@ -23,3 +23,15 @@ export class LoginDto {
   @IsNotEmpty({ message: '请检查密码' })
   password: string;
 }
+
+export class WxLoginDto {
+  // @IsString()
+  @ApiProperty({ description: 'jscode' })
+  // @IsNotEmpty({ message: '请检查code' })
+  jsCode: string;
+
+  // @IsString()
+  @ApiProperty({ description: 'phoneCode' })
+  // @IsNotEmpty({ message: '请检查code' })
+  phoneCode: string;
+}

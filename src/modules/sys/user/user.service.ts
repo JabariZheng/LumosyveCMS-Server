@@ -103,6 +103,28 @@ export class UserService {
   }
 
   /**
+   * 微信登录自动创建用户
+   */
+  @CatchErrors()
+  public async createByWx(
+    createUserDto: CreateUserDto | any,
+  ): Promise<ResultData> {
+    const newData = {
+      ...createUserDto,
+    };
+    await this.userRepository.save(newData);
+    return ResultData.ok(
+      {
+        ...newData,
+        password: undefined,
+        createDate: moment(newData.createDate).format('YYYY-MM-DD HH:mm:ss'),
+        updateDate: moment(newData.updateDate).format('YYYY-MM-DD HH:mm:ss'),
+      },
+      '操作成功',
+    );
+  }
+
+  /**
    * 删除
    */
   @CatchErrors()
@@ -310,6 +332,7 @@ export class UserService {
         userCode: opt.userCode ? opt.userCode : undefined,
         id: opt.id ? opt.id : undefined,
         loginCode: opt.loginCode ? opt.loginCode : undefined,
+        wxOpenid: opt.wxOpenid ? opt.wxOpenid : undefined,
       },
       User,
     );

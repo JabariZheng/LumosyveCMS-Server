@@ -70,6 +70,11 @@ export class ActionByUserCodeDot {
   @ApiProperty({ description: 'id' })
   // @IsNotEmpty({ message: '请检查用户编码' })
   id?: string;
+
+  // @IsString()
+  @ApiProperty({ description: 'wx_openid' })
+  // @IsNotEmpty({ message: '请检查用户编码' })
+  wxOpenid?: string;
 }
 
 export class DelActionByIdsDot {

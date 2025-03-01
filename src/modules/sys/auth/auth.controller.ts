@@ -6,7 +6,7 @@
 import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { LoginDto } from './dto/auth.dto';
+import { LoginDto, WxLoginDto } from './dto/auth.dto';
 import { AllowAnon } from 'src/common/decorators/allow-anon.decorator';
 
 @Controller('/sys/auth')
@@ -19,6 +19,13 @@ export class AuthController {
   @AllowAnon()
   login(@Body() loginParams: LoginDto) {
     return this.authService.login(loginParams);
+  }
+
+  @Post('wxLogin')
+  @ApiOperation({ summary: '微信登录' })
+  @AllowAnon()
+  wxLogin(@Body() loginParams: WxLoginDto) {
+    return this.authService.wxLogin(loginParams);
   }
 
   @Get('logout')
