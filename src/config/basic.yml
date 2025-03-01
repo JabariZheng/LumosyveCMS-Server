@@ -51,4 +51,4 @@ errorCode:
 common:
   # 白名单
   whiteList:
-    ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '/favicon.ico', '/sys/auth/login', '/sys/auth/wxLogin']
+    ['/favicon.ico', '/sys/auth/login', '/sys/auth/wxLogin']
