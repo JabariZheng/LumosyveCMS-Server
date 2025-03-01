@@ -19,14 +19,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { APP_GUARD } from '@nestjs/core';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './modules/sys/auth/auth.module';
 import { JwtAuthGuard } from './common/guards/auth.guard';
 import { DictModule } from './modules/sys/dict/dict.module';
 import { DictDataModule } from './modules/sys/dict-data/dict-data.module';
 import { MenuModule } from './modules/sys/menu/menu.module';
 import { RoleModule } from './modules/sys/role/role.module';
-import { join } from 'path';
 import { UploadImagesModule } from './modules/sys/upload-images/upload-images.module';
 import { CorpModule } from './modules/sys/corp/corp.module';
 import { FilesModule } from './modules/sys/files/files.module';
@@ -57,11 +55,6 @@ import { GoodsModule } from './modules/cms/goods/goods.module';
     }),
     // redisCahce
     CacheModule,
-    // 静态文件服务模块
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public', 'uploads'),
-      serveRoot: '/public/uploads',
-    }),
     // 常规模块
     AuthModule,
     // UserModule,

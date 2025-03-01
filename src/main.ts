@@ -12,6 +12,7 @@ import { LoggerMiddleware } from './middleware/log.middleware';
 import { Logger } from './common/libs/log4js/log4js';
 import { HttpExceptionsFilter } from './common/libs/log4js/http-exceptions-filter';
 import { NotFoundFilter } from './common/libs/notFoundFilter';
+import { join } from 'path';
 // import { readFileSync } from 'fs';
 // import { join } from 'path';
 
@@ -27,6 +28,9 @@ async function bootstrap() {
     //   cert: readFileSync(join(__dirname, './ssl/BackendNest.crt')),
     // },
   });
+
+  // 静态文件服务模块
+  app.useStaticAssets(join(__dirname, '..', 'public'));
 
   const configService = app.get(ConfigService<any>);
   const { prefix, host, port } = configService.get('app');
@@ -52,7 +56,9 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, swaggerOptions);
   // SwaggerModule.setup(`${prefix}/docs`, app, document);
-  SwaggerModule.setup(`/docs`, app, document);
+  SwaggerModule.setup(`/docs`, app, document, {
+    customCssUrl: '/theme/SwaggerDark.css',
+  });
 
   await app.listen(port);
 
