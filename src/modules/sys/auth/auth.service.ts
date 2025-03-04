@@ -186,10 +186,11 @@ export class AuthService {
       );
     }
     // 遗留问题：需要300块认证才能解析手机号码，所以直接用openId
-    const { data } = await this.userService.getInfo({
+    const { data: getInfoRes } = await this.userService.getInfo({
       wxOpenid: userOpenId,
     });
-    if (Object.keys(data || {}).length === 0) {
+    let userInfo = getInfoRes;
+    if (Object.keys(userInfo || {}).length === 0) {
       // 创建用户
       const newUserId = snowflakeID.NextId() + '';
       const newUserData = {
@@ -209,21 +210,22 @@ export class AuthService {
         userType: 'persion',
       };
       await this.userService.createByWx(newUserData);
-      // 生成token返回
-      const data = this.genToken({
-        id: newUserData.id + '',
-        userName: newUserData.userName,
-        corpCode: '',
-        corpName: '',
-      });
-      // 写入redis，过期时间和jwt的过期时间同步
-      await this.cacheService.set(
-        `user_${newUserData.id}_${newUserData.userName}`,
-        JSON.stringify(instanceToPlain(newUserData)),
-        this.configService.get('jwt.expiresIn'),
-      );
-      return ResultData.ok({ ...data });
+      userInfo = newUserData;
     }
+    // 生成token返回
+    const data = this.genToken({
+      id: userInfo.id + '',
+      userName: userInfo.userName,
+      corpCode: '',
+      corpName: '',
+    });
+    // 写入redis，过期时间和jwt的过期时间同步
+    await this.cacheService.set(
+      `user_${userInfo.id}_${userInfo.userName}`,
+      JSON.stringify(instanceToPlain(userInfo)),
+      this.configService.get('jwt.expiresIn'),
+    );
+    return ResultData.ok({ ...data });
     // // 理解为自动登录流程，查询是否存在用户
     // if (!loginParams.phoneCode) {
     //   const { data } = await this.userService.getInfo({
