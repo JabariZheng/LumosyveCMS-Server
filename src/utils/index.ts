@@ -6,7 +6,7 @@
 
 import * as moment from 'moment';
 import SnowflakeID from './snowflake';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, Repository, ValueTransformer } from 'typeorm';
 import { plainToInstance } from 'class-transformer';
 
 export const getControllerName = (__dirname) => {
@@ -30,6 +30,11 @@ export const formatDate = (
   }
   return moment(value).format(fmt);
   // return value;
+};
+
+export const dateTransformer: ValueTransformer = {
+  to: (value: Date) => value,
+  from: (value: Date) => value && moment(value).format('YYYY-MM-DD HH:mm:ss'),
 };
 
 /**

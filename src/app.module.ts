@@ -31,6 +31,7 @@ import { FilesModule } from './modules/sys/files/files.module';
 import { FolderModule } from './modules/sys/folder/folder.module';
 import { WarehouseModule } from './modules/cms/warehouse/warehouse.module';
 import { GoodsModule } from './modules/cms/goods/goods.module';
+import { InventoryModule } from './modules/cms/inventory/inventory.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { GoodsModule } from './modules/cms/goods/goods.module';
     FolderModule,
     WarehouseModule,
     GoodsModule,
+    InventoryModule,
     // CorpModule,
   ],
   // controllers: [AppController],

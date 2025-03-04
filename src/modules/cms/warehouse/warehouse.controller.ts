@@ -1,7 +1,7 @@
 /*
  * @Author: ZhengJie
  * @Date: 2025-03-01 15:06:49
- * @LastEditTime: 2025-03-01 16:34:39
+ * @LastEditTime: 2025-03-02 02:10:22
  * @Description: 仓库管理
  */
 import {
@@ -40,13 +40,13 @@ export class WarehouseController {
     );
   }
 
-  @Delete('delete')
+  @Delete('/mini/delete')
   @ApiOperation({ summary: '删除' })
   remove(@Body() query: DelActionByIdsDot, @Headers() headers: any) {
     return this.warehouseService.remove(query, headers.authorization);
   }
 
-  @Put('update')
+  @Put('/mini/update')
   @ApiOperation({ summary: '更新' })
   update(
     @Body() updateWarehouseDto: UpdateWarehouseDto,
@@ -58,7 +58,7 @@ export class WarehouseController {
     );
   }
 
-  @Get('page')
+  @Get('/mini/page')
   @ApiOperation({ summary: '分页' })
   getPage(@Query() page: GetPageDto) {
     return this.warehouseService.getPage(page);
@@ -70,7 +70,7 @@ export class WarehouseController {
     return this.warehouseService.getList(headers.authorization);
   }
 
-  @Get('info')
+  @Get('/mini/info')
   @ApiOperation({ summary: '详情' })
   getInfo(@Query() detailDto: ActionByIdDot) {
     return this.warehouseService.getInfo(detailDto.id);
